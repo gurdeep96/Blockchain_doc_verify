@@ -55,11 +55,9 @@ import {
   BelongsToMany,
 } from "sequelize-typescript";
 import User from "./user"; // Assuming you have a User model
-import PostTags from "./posttags";
-import Tag from "./tag";
 
 @Table({
-  tableName: "posts",
+  tableName: "documents",
   timestamps: true, // Specify the table name explicitly
 })
 class Post extends Model {
@@ -78,15 +76,12 @@ class Post extends Model {
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
+    allowNull: true,
   })
-  userId!: number;
+  userId: number | undefined;
 
-  @BelongsTo(() => User)
+  @BelongsTo(() => User, { onDelete: "CASCADE" })
   user!: User;
-
-  @BelongsToMany(() => Tag, () => PostTags) // Define many-to-many association with Tag model through PostTags
-  tags!: Tag[];
 }
 
 export default Post;

@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es6",  // Adjust target based on your Node.js version
-    "module": "commonjs",  // Adjust module type if needed
+    "module": "CommonJS",  // Adjust module type if needed
     "lib": ["dom", "dom.iterable", "esnext"],  // Include necessary libraries
     "allowJs": true,   // Allow compilation of existing JavaScript files
     "skipLibCheck": true,  // Skip type checking of library files
@@ -16,6 +16,6 @@
     "emitDecoratorMetadata": true
 
   },
-  "include": ["src","config"],  // Include source files from the "src" directory for compilation
+  "include": ["src"],  // Include source files from the "src" directory for compilation
   "exclude": ["node_modules"]  // Exclude the "node_modules" directory
 }

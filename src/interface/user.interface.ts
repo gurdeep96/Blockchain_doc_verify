@@ -2,12 +2,16 @@ export interface IUserInput {
   firstname: string;
   lastname: string;
   email: string;
+  password: string;
+  role?: string;
 }
 
 export interface IUser {
   firstName?: string;
   lastName?: string;
   email: string;
+  password?: string;
+  role?: string;
 }
 
 export interface IUserResponse {

@@ -1,10 +1,14 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as Sequelize from "sequelize-typescript";
+import PostTags from "./posttags";
+import Post from "./document";
+import User from "./user";
+import Tag from "./tag";
 // import { sequelize } from "../db/connection";
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || "development";
-const config = require(path.join(__dirname + "/../../config/config.json"))[env];
+const config = require(path.join(__dirname + "/../config/config.js"))[env];
 const db: { [key: string]: any } = {}; // Use an indexed object type for db
 
 interface SequelizeInstance extends Sequelize.Sequelize {} // Define an interface for Sequelize with potential extensions
@@ -22,24 +26,7 @@ if (config.use_env_variable) {
     config
   );
 }
-
-// const modelFiles = fs
-//   .readdirSync(__dirname)
-//   .filter(
-//     (file) =>
-//       file !== basename &&
-//       file.slice(-3) === ".js" &&
-//       file.indexOf(".test.js") === -1
-//   );
-// for (const file of modelFiles) {
-//   try {
-//     const model = require(path.join(__dirname, file)).default;
-//     console.log("names", model);
-//     db[model.name] = model(sequelize, Sequelize.DataType);
-//   } catch (error) {
-//     console.error(`Error loading model file ${file}:`, error);
-//   }
-// }
+sequelize.addModels([User, Tag, PostTags, Post]);
 
 // fs.readdirSync(__dirname)
 //   .filter((file) => {
@@ -94,12 +81,6 @@ fs.readdirSync(__dirname)
     }
   });
 
-// Object.keys(db).forEach((modelName) => {
-//   if (db[modelName].associate) {
-//     db[modelName].associate(db);
-//   }
-// });
-sequelize.addModels(models);
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
