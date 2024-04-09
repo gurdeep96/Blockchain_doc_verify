@@ -22,3 +22,7 @@ export interface IUserResponse {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface IStorageSum {
+  SUM: number;
+}

@@ -1,0 +1,44 @@
+<br />
+<h3>Users Details</h3>
+<div class="users-list">
+  <table class="table table-striped record-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Created On</th>
+        <th colspan="2" style="text-align: center">Documents</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for(user of users; track user.name; let i=$index) {
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ user.firstName }} {{ user.lastName }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.role }}</td>
+        <td>{{ user.createdAt }}</td>
+        <td>
+          <button
+            class="btn btn-info"
+            (click)="uploadDocument(user.id, user.email)"
+          >
+            Upload File
+          </button>
+        </td>
+        <td>
+          <button class="btn btn-info" (click)="getDocumentById(user.id)">
+            View
+          </button>
+        </td>
+      </tr>
+      } @empty {
+      <tr>
+        <p>No Record Found</p>
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>

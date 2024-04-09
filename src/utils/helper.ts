@@ -5,9 +5,9 @@ import { Stream } from "stream";
 import { create, IPFSHTTPClient } from "ipfs-http-client";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import * as fs from "fs";
+import * as fsPromise from "fs/promises";
 
-// Define storage for uploaded files
-export function multerSingle(fieldName: string) {
+export function multerClient() {
   const paths = "../document/";
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -20,14 +20,14 @@ export function multerSingle(fieldName: string) {
 
   // Initialize Multer with the storage configuration
   const upload = multer({ storage: storage });
-  return upload.single(fieldName);
+  return upload;
 }
 
 export function sha256hashSync(buffer: Buffer) {
   return crypto.createHash("sha256").update(buffer).digest("hex");
 }
 
-export async function sha256hashAsync(stream: Stream) {
+export async function sha256hashAsync(stream: Stream): Promise<string> {
   return await new Promise((resolve, reject) => {
     const hash = crypto.createHash("sha256");
 
@@ -82,22 +82,105 @@ export async function thirdwebIpfsDownload(ipfs: ThirdwebStorage, uri: string) {
   return result;
 }
 
-export function encryptFile(
+export async function encryptFile(
+  algorithm: string,
+  key: any,
+  fileInputStream: Stream,
+  fileName: string
+) {
+  return new Promise((resolve, reject) => {
+    const iv = Buffer.from(process.env.ENCRY_IV as string, "hex");
+    const cipher = crypto.createCipheriv(algorithm, key, iv);
+    const output = fs.createWriteStream(
+      path.join(__dirname, `../document/enc/${fileName}`)
+    );
+
+    fileInputStream.pipe(cipher).pipe(output);
+
+    output.on("finish", () => resolve(output.path));
+    output.on("error", reject);
+  });
+}
+
+export function decryptBuffer(algorithm: string, key: any, encryptedData: any) {
+  const iv = Buffer.from(process.env.ENCRY_IV as string, "hex");
+  let encryptedTextBuffer = Buffer.from(encryptedData, "hex");
+  const decipher = crypto.createDecipheriv(algorithm, key, iv);
+
+  // Decrypt the buffer
+  let decrypted = decipher.update(encryptedTextBuffer);
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+
+  return decrypted;
+}
+
+export function decryptBuffers(
+  algorithm: string,
+  key: any,
+  buffer: Buffer
+): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const iv = Buffer.from(process.env.ENCRY_IV as string, "hex");
+
+    const decipher = crypto.createDecipheriv(algorithm, key, iv);
+
+    // Decrypt the buffer
+    let decrypted = Buffer.from([]);
+    decipher.on("data", (chunk) => {
+      decrypted = Buffer.concat([decrypted, chunk]);
+    });
+
+    decipher.on("end", () => {
+      resolve(decrypted);
+    });
+
+    decipher.on("error", (error) => {
+      reject(error);
+    });
+
+    decipher.write(buffer);
+    decipher.end();
+  });
+}
+
+export function decrypt(algorithm: string, key: any, encrypted: any) {
+  const iv = encrypted.slice(0, 16);
+  encrypted = encrypted.slice(16);
+  const decipher = crypto.createDecipheriv(algorithm, key, iv);
+  const result = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+  return result;
+}
+
+export async function ipfsUploadEncryptedFile(
+  ipfs: any,
   algorithm: string,
   key: string,
   filePath: string,
-  outputPath: string
+  fileName: string
 ) {
+  try {
+    const fsInputStreams = fs.createReadStream(filePath);
+    const outPath = await encryptFile(algorithm, key, fsInputStreams, fileName);
+    const readFileEnc = await fsPromise.readFile(outPath as string);
+    const fileSave = await thirdwebIpfsUpload(ipfs, readFileEnc);
+
+    await fsPromise.unlink(filePath);
+    await fsPromise.unlink(outPath as string);
+
+    return fileSave;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export function keyGen(key: string) {
   return new Promise((resolve, reject) => {
-    const iv = crypto.randomBytes(16); // Initialization Vector for CBC mode
-
-    const cipher = crypto.createCipheriv(algorithm, key, iv);
-    const input = fs.createReadStream(filePath);
-    const output = fs.createWriteStream(outputPath);
-
-    input.pipe(cipher).pipe(output);
-
-    output.on("finish", () => resolve({ iv: iv.toString("hex") }));
-    output.on("error", reject);
+    crypto.scrypt(key, "salt", 32, (error, keys) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(keys);
+      }
+    });
   });
 }

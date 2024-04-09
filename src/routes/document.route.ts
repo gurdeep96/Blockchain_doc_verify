@@ -1,24 +1,67 @@
 import express, { Router } from "express";
-import DocumentController from "../controller/document.controller"; // Assuming TypeScript file extension is .ts
+import documentController from "../controller/document.controller"; // Assuming TypeScript file extension is .ts
+import {
+  adminAuthorize,
+  authMiddleware,
+  multerSingle,
+} from "../middleware/auth";
 
 const DocumentRouter: Router = express.Router();
 
-DocumentRouter.get("/getDocuments", DocumentController.getDocuments);
-DocumentRouter.get("/getDocument/:id", DocumentController.getDocument);
-DocumentRouter.put(
-  "/assignDocument/:userId/:DocumentId",
-  DocumentController.assignDocument
+DocumentRouter.get(
+  "/documents",
+  authMiddleware,
+  documentController.getDocuments
+);
+DocumentRouter.get(
+  "/documents/user/:userId",
+  authMiddleware,
+  documentController.getDocumentsByUser
+);
+DocumentRouter.get(
+  "/documents/storage-size",
+  authMiddleware,
+  adminAuthorize,
+  documentController.getTotalStorage
 );
 DocumentRouter.put(
-  "/unassignDocument/:userId/:DocumentId",
-  DocumentController.unassignDocument
+  "/assigndocument/:userId/:DocumentId",
+  authMiddleware,
+  documentController.assignDocument
+);
+DocumentRouter.put(
+  "/unassigndocument/:userId/:DocumentId",
+  authMiddleware,
+  documentController.unassignDocument
 );
 DocumentRouter.post(
-  "/createDocument/:userId",
-  DocumentController.createDocument
+  "/createdocument/:userId",
+  authMiddleware,
+  documentController.createDocument
 );
-DocumentRouter.post("/createDocument", DocumentController.createDocument);
-DocumentRouter.put("/updateDocument/:id", DocumentController.updateDocuments);
-DocumentRouter.delete("/deleteDocument/:id", DocumentController.deleteDocument);
+DocumentRouter.post("/createdocument", documentController.createDocument);
+DocumentRouter.put(
+  "/updatedocument/:id",
+  authMiddleware,
+  documentController.updateDocuments
+);
+DocumentRouter.delete(
+  "/deletedocument/:id",
+  authMiddleware,
+  documentController.deleteDocument
+);
+DocumentRouter.post(
+  "/documentupload/:userId",
+  authMiddleware,
+  adminAuthorize,
+  multerSingle,
+  documentController.fileUpload
+);
+DocumentRouter.get("/getfile", authMiddleware, documentController.getFile);
+DocumentRouter.post(
+  "/checkfileauthenticity",
+  authMiddleware,
+  documentController.verifyFileBlockChain
+);
 
 export default DocumentRouter;

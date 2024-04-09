@@ -1,0 +1,50 @@
+<br />
+<h3>&nbsp; List of Uploaded Documents</h3>
+<h5>&nbsp;&nbsp; Double click to download</h5>
+<br />
+<div class="container">
+  <div class="row">
+    <div class="col-lg-4 col-md-6 mb-4" *ngFor="let item of items">
+      <div
+        class="card bg-light border-primary h-100"
+        (dblclick)="getFile(item.documentPath, item.fileName)"
+        [ngClass]="{ 'card-hover': hover === item.documentPath }"
+        (mouseenter)="hover = item.documentPath"
+        (mouseleave)="hover = null"
+      >
+        <div class="card-body">
+          <h5 class="card-title">
+            <span class="red-text">Title:</span> {{ item.title }}
+          </h5>
+          <p class="card-text">
+            <span class="pink-text">File Name :</span> {{ item.fileName }}
+          </p>
+          <p class="card-text">
+            <span class="pink-text">BlockChain Transaction Hash :</span>
+            {{ item.transactionId }}
+          </p>
+          <p class="card-text">
+            <span class="pink-text">IPFS Hash :</span> {{ item.documentPath }}
+          </p>
+          <p class="card-text">
+            <span class="pink-text">Hash sha 256 :</span> {{ item.hash }}
+          </p>
+          <p class="card-text">
+            <span class="pink-text">File Identifier :</span>
+            {{ item.fileIdentifier }}
+          </p>
+          <p class="card-text">
+            <span class="pink-text">File Size (MB) : </span
+            >{{ item.fileSizeMB }}
+          </p>
+          <p class="card-text">
+            <span class="pink-text">Issuing Org : </span>{{ item.issuer }}
+          </p>
+          <p class="card-text">
+            <span class="pink-text">Uploaded On :</span> {{ item.createdAt }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

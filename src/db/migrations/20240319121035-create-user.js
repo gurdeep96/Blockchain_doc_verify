@@ -29,6 +29,10 @@ module.exports = {
         allowNull: true,
         defaultValue: "user",
       },
+      active: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: true,
+      },
       accountAddress: {
         type: Sequelize.STRING,
         allowNull: true,

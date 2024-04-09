@@ -1,50 +1,3 @@
-// import { Model, DataTypes } from "sequelize";
-// import { Sequelize } from "sequelize-typescript";
-
-// interface PostAttributes {
-//   title: string;
-//   content: string;
-//   userId: number;
-// }
-
-// class post extends Model<PostAttributes> {
-//   public title!: string;
-//   public content!: string;
-//   public userId!: number;
-
-//   static associate(models: any) {
-//     // Define association here
-
-//     post.belongsTo(models.user, { foreignKey: "userId" });
-//     post.belongsToMany(models.post, {
-//       through: models.PostTags,
-//       foreignKey: "postId",
-//     });
-//   }
-// }
-
-// export default (sequelize: Sequelize, DataTypes: any) => {
-//   post.init(
-//     {
-//       title: DataTypes.STRING,
-//       content: DataTypes.STRING,
-//       userId: {
-//         type: DataTypes.INTEGER,
-//         references: {
-//           model: "User",
-//           key: "id",
-//         },
-//       },
-//     },
-//     {
-//       sequelize,
-//       modelName: "post",
-//     }
-//   );
-
-//   return post;
-// };
-
 import {
   Table,
   Column,
@@ -58,9 +11,17 @@ import User from "./user"; // Assuming you have a User model
 
 @Table({
   tableName: "documents",
+  modelName: "Document",
   timestamps: true, // Specify the table name explicitly
 })
-class Post extends Model {
+class Document extends Model {
+  @Column({
+    type: DataType.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  })
+  id!: number;
+
   @Column({
     type: DataType.STRING,
     allowNull: false,
@@ -69,14 +30,63 @@ class Post extends Model {
 
   @Column({
     type: DataType.STRING,
+    allowNull: false,
+  })
+  documentPath!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    unique: true,
+  })
+  hash!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  fileName!: string;
+
+  @Column({
+    type: DataType.STRING,
     allowNull: true,
   })
-  content!: string;
+  transactionId?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  mimeType?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  fileIdentifier?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  extension?: string;
+
+  @Column({
+    type: DataType.FLOAT,
+    allowNull: true,
+  })
+  fileSizeMB?: number;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  issuer?: string;
 
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,
-    allowNull: true,
+    allowNull: false,
   })
   userId: number | undefined;
 
@@ -84,4 +94,4 @@ class Post extends Model {
   user!: User;
 }
 
-export default Post;
+export default Document;

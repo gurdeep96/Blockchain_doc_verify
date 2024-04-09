@@ -1,13 +1,22 @@
 import express, { Express, Request, Response } from "express";
 import * as dotenv from "dotenv";
+import cors from "cors";
 import db from "./db/models/index";
 import userRouter from "./routes/user.route";
 import PostRouter from "./routes/document.route";
+
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
+const corsOptions = {
+  origin: ["http://localhost:4200"],
+  credentials: true,
+  maxAge: 86400,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(userRouter);

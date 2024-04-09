@@ -1,0 +1,59 @@
+<br />
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Login</h3>
+        </div>
+        <div class="card-body">
+          <form
+            *ngIf="!isLoggedIn"
+            (ngSubmit)="onSubmit()"
+            #f="ngForm"
+            novalidate
+          >
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                class="form-control"
+                name="email"
+                [(ngModel)]="form.email"
+                required
+                #email="ngModel"
+              />
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                class="form-control"
+                name="password"
+                [(ngModel)]="form.password"
+                required
+                minlength="3"
+                #password="ngModel"
+              />
+            </div>
+            <br />
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary btn-block">
+                Login
+              </button>
+            </div>
+            <br />
+            <div class="form-group" *ngIf="f.submitted && isLoginFailed">
+              <div class="alert alert-danger" role="alert">
+                {{ errorMessage }}
+              </div>
+            </div>
+          </form>
+          <div class="alert alert-success" *ngIf="isLoggedIn">
+            Logged in as {{ username }}.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

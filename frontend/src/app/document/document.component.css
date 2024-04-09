@@ -1,0 +1,10 @@
+.red-text {
+  color: red;
+}
+.pink-text {
+  color: purple;
+}
+.card-hover {
+  transform: scale(1.02);
+  transition: transform 0.1s ease-in-out;
+}

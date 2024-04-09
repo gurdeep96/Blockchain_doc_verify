@@ -1,0 +1,118 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6 custom-form" *ngIf="enableUpload">
+      <h5>Make Note of the Transaction Hash returned after Upload</h5>
+      <br />
+      <div class="border rounded p-4">
+        <form (ngSubmit)="submitForm()">
+          <div class="mb-3">
+            <label for="title" class="form-label">User Id :</label>
+            <input
+              type="text"
+              id="userid"
+              name="userid"
+              [(ngModel)]="formData.userId"
+              class="form-control"
+              disabled
+            />
+          </div>
+          <div class="mb-3">
+            <label for="title" class="form-label">User Email :</label>
+            <input
+              type="text"
+              id="email"
+              name="email"
+              [(ngModel)]="formData.userEmail"
+              class="form-control"
+              disabled
+            />
+          </div>
+          <div class="mb-3">
+            <label for="title" class="form-label">Document Name (Title):</label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              [(ngModel)]="formData.title"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="identifierId" class="form-label"
+              >Document Identifier Id:</label
+            >
+            <input
+              type="text"
+              id="identifierId"
+              name="identifierId"
+              [(ngModel)]="formData.identifierId"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="file" class="form-label">Upload Document:</label>
+            <input
+              type="file"
+              id="file"
+              name="file"
+              (change)="onFileSelected($event)"
+              class="form-control"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+    </div>
+    <div class="col-md-8 custom-form" *ngIf="!enableUpload">
+      <h3 class="error-message" style="color: brown">
+        {{ errorWallet }}
+      </h3>
+    </div>
+  </div>
+</div>
+
+<div class="result-container mt-4 text-center">
+  <div
+    *ngIf="responseFlag"
+    class="upload-result"
+    [ngClass]="{ success: uploadFlag, error: !uploadFlag }"
+  >
+    <h4 class="mb-3">Upload Result</h4>
+    <div class="success-message">
+      <p *ngIf="uploadFlag">
+        <span class="font-weight-bold">File Name:</span>
+        {{ uploadResponse.fileName }}
+      </p>
+      <p *ngIf="uploadFlag">
+        <span class="font-weight-bold">Transaction Hash:</span>
+        {{ uploadResponse.transactionId }}
+      </p>
+      <p *ngIf="uploadFlag">
+        <span class="font-weight-bold">IPFS Path:</span>
+        {{ uploadResponse.documentPath }}
+      </p>
+      <p *ngIf="uploadFlag">
+        <span class="font-weight-bold">Hash 256:</span>
+        {{ uploadResponse.hash }}
+      </p>
+      <p *ngIf="uploadFlag">
+        <span class="font-weight-bold">Size:</span>
+        {{ uploadResponse.fileSizeMB }} MB
+      </p>
+      <p *ngIf="uploadFlag">
+        <span class="font-weight-bold">File Identifier:</span>
+        {{ uploadResponse.fileIdentifier }}
+      </p>
+      <p *ngIf="uploadFlag">
+        <span class="font-weight-bold">Uploaded at:</span>
+        {{ uploadResponse.createdAt }}
+      </p>
+    </div>
+    <p *ngIf="!uploadFlag" class="error-message">
+      {{ uploadResponse }}
+    </p>
+  </div>
+</div>

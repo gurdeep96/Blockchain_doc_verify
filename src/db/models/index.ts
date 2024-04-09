@@ -1,10 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as Sequelize from "sequelize-typescript";
-import PostTags from "./posttags";
-import Post from "./document";
+import Document from "./document";
 import User from "./user";
-import Tag from "./tag";
 // import { sequelize } from "../db/connection";
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || "development";
@@ -26,43 +24,8 @@ if (config.use_env_variable) {
     config
   );
 }
-sequelize.addModels([User, Tag, PostTags, Post]);
+sequelize.addModels([User, Document]);
 
-// fs.readdirSync(__dirname)
-//   .filter((file) => {
-//     return (
-//       file.indexOf(".") !== 0 && file !== basename && file.slice(-3) === ".js"
-//     );
-//   })
-//   .forEach((file) => {
-//     const model = require(path.join(__dirname, file))(
-//       sequelize,
-//       Sequelize.DataType
-//     );
-//     db[model.name] = model;
-//   });
-// console.log("DB", db);
-
-// Object.keys(db).forEach((modelName) => {
-//   if (db[modelName].associate) {
-//     db[modelName].associate(db);
-//   }
-// });
-// fs.readdirSync(__dirname)
-//   .filter((file) => {
-//     return (
-//       file.indexOf(".") !== 0 && file !== basename && file.slice(-3) === ".js"
-//     );
-//   })
-//   .forEach(async (file) => {
-//     const model = await import(path.join(__dirname, file));
-//     console.log(model);
-//     //model.default(sequelize, Sequelize.DataType);
-//     db[model.name] = model;
-//     if (db[model.name].associate) {
-//       db[model.name].associate(db);
-//     }
-//   });
 const models: any[] = [];
 fs.readdirSync(__dirname)
   .filter(

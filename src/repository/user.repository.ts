@@ -1,21 +1,28 @@
 import db from "../db/models/index";
 import { IUser, IUserInput, IUserResponse } from "../interface/user.interface";
 import User from "../db/models/user";
-import Post from "../db/models/document";
+import Document from "../db/models/document";
+import { Op } from "sequelize";
+
 export class UserRepository {
   async findOne(id: number) {
-    return await User.findOne({ where: { id: id } });
+    return await User.findOne({
+      where: { [Op.and]: [{ active: true }, { id: id }] },
+    });
   }
 
   async findByEmail(email: string) {
-    return await User.findOne({ where: { email: email } });
+    return await User.findOne({
+      where: { [Op.and]: [{ active: true }, { email: email }] },
+    });
   }
 
   async findAll() {
     return await User.findAll({
+      attributes: { exclude: ["password", "updatedAt", "active"] },
       include: {
-        model: Post,
-        //right: true,
+        model: Document,
+        attributes: ["title", "documentPath", "hash", "issuer"],
       },
       nest: true,
     });
@@ -36,9 +43,6 @@ export class UserRepository {
       {
         firstName: user.firstName,
         lastName: user.lastName,
-        email: user.email,
-        password: user.password,
-        role: user.role,
       },
       {
         where: {
@@ -49,11 +53,14 @@ export class UserRepository {
   }
 
   async deleteUser(id: number) {
-    return await User.destroy({
-      where: {
-        id: id,
-      },
-    });
+    return await User.update(
+      { active: false },
+      {
+        where: {
+          id: id,
+        },
+      }
+    );
   }
 }
 const userRepository = new UserRepository();

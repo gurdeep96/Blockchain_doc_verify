@@ -1,21 +1,20 @@
 {
   "compilerOptions": {
-    "target": "es6",  // Adjust target based on your Node.js version
-    "module": "CommonJS",  // Adjust module type if needed
-    "lib": ["dom", "dom.iterable", "esnext"],  // Include necessary libraries
-    "allowJs": true,   // Allow compilation of existing JavaScript files
-    "skipLibCheck": true,  // Skip type checking of library files
-    "strict": true,  // Enable strict mode for type safety
-    "esModuleInterop": true,  // Enable ES module interoperability
-    "allowSyntheticDefaultImports": true,  // Allow synthetic default imports
-    "forceConsistentCasingInFileNames": true,  // Ensure consistent file name casing
-    "resolveJsonModule": true,  // Allow resolution of JSON modules
-    "isolatedModules": true,  // Enable strict module isolation
-    "outDir": "dist",  // Output compiled JavaScript to a "dist" folder (optional)
+    "target": "es6", // Adjust target based on your Node.js version
+    "module": "CommonJS", // Adjust module type if needed
+    "lib": ["dom", "dom.iterable", "esnext"], // Include necessary libraries
+    "allowJs": true, // Allow compilation of existing JavaScript files
+    "skipLibCheck": true, // Skip type checking of library files
+    "strict": true, // Enable strict mode for type safety
+    "esModuleInterop": true, // Enable ES module interoperability
+    "allowSyntheticDefaultImports": true, // Allow synthetic default imports
+    "forceConsistentCasingInFileNames": true, // Ensure consistent file name casing
+    "resolveJsonModule": true, // Allow resolution of JSON modules
+    "isolatedModules": true, // Enable strict module isolation
+    "outDir": "dist", // Output compiled JavaScript to a "dist" folder (optional)
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
-
   },
-  "include": ["src"],  // Include source files from the "src" directory for compilation
-  "exclude": ["node_modules"]  // Exclude the "node_modules" directory
+  "include": ["src", "src/*.json"], // Include source files from the "src" directory for compilation
+  "exclude": ["node_modules"] // Exclude the "node_modules" directory
 }

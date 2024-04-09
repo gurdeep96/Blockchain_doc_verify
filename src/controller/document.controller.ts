@@ -1,12 +1,43 @@
 import { Request, Response } from "express";
-import DocumentService from "../service/document.service";
+import documentService, { DocumentService } from "../service/document.service";
+import userService from "../service/user.service";
+import {
+  decrypt,
+  decryptBuffer,
+  decryptBuffers,
+  keyGen,
+} from "../utils/helper";
 
 export class DocumentController {
   constructor() {}
+
   async getDocument(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const response = await DocumentService.findOneDocument(Number(id));
+      const response = await documentService.findOneDocument(Number(id));
+      res.status(200).send({ status: 200, result: response });
+    } catch (error) {
+      res.status(500).send({ error });
+    }
+  }
+
+  async getTotalStorage(req: Request, res: Response) {
+    try {
+      const response = await documentService.getFilesStorageSize();
+
+      const data = response[0].SUM + " MB";
+      res.status(200).send({ status: 200, result: data });
+    } catch (error) {
+      res.status(500).send({ error });
+    }
+  }
+
+  async getDocumentsByUser(req: Request, res: Response) {
+    try {
+      const { userId } = req.params;
+      const response = await documentService.findDocumentsByUser(
+        Number(userId)
+      );
       res.status(200).send({ status: 200, result: response });
     } catch (error) {
       res.status(500).send({ error });
@@ -15,10 +46,11 @@ export class DocumentController {
 
   async getDocuments(req: Request, res: Response) {
     try {
-      const response = await DocumentService.findAllDocument();
+      const response = await documentService.findAllDocument();
       res.status(200).send({ status: 200, result: response });
     } catch (error) {
-      res.status(500).send({ error });
+      console.log(error);
+      res.status(500).send(error);
     }
   }
 
@@ -26,7 +58,7 @@ export class DocumentController {
     try {
       const { id } = req.params;
 
-      const response = await DocumentService.updateDocument(
+      const response = await documentService.updateDocument(
         Number(id),
         req.body
       );
@@ -40,7 +72,7 @@ export class DocumentController {
     try {
       const { id } = req.params;
 
-      const response = await DocumentService.deleteDocument(Number(id));
+      const response = await documentService.deleteDocument(Number(id));
       res.status(200).send({ status: 200, result: response });
     } catch (error) {
       res.status(500).send({ error });
@@ -51,7 +83,7 @@ export class DocumentController {
     try {
       const Document: any = req.body;
       const { userId } = req.params;
-      const response = await DocumentService.createDocument(Document, userId);
+      const response = await documentService.createDocument(Document, userId);
       res
         .status(200)
         .send({ status: 201, result: response, message: "Document Created!" });
@@ -64,7 +96,7 @@ export class DocumentController {
   async assignDocument(req: Request, res: Response) {
     try {
       const { userId, DocumentId } = req.params;
-      const response = await DocumentService.assignDocument(DocumentId, userId);
+      const response = await documentService.assignDocument(DocumentId, userId);
       res
         .status(200)
         .send({ status: 201, result: response, message: "Document Assigned!" });
@@ -77,20 +109,79 @@ export class DocumentController {
   async unassignDocument(req: Request, res: Response) {
     try {
       const { userId, DocumentId } = req.params;
-      const response = await DocumentService.unassignDocument(
+      const response = await documentService.unassignDocument(
         DocumentId,
         userId
       );
-      res
-        .status(200)
-        .send({
-          status: 201,
-          result: response,
-          message: "Document Unssigned!",
-        });
+      res.status(200).send({
+        status: 201,
+        result: response,
+        message: "Document Unssigned!",
+      });
     } catch (error) {
       console.log(error);
       res.status(500).send({ error });
+    }
+  }
+
+  async fileUpload(req: Request, res: Response) {
+    try {
+      if (!req.file) {
+        return res
+          .status(400)
+          .json({ status: 400, result: "Kindly upload a file" });
+      }
+      const document = req.file;
+
+      const body = req.body;
+      const { userId } = res.locals.user;
+      const user = req.params.userId;
+      const result = await documentService.fileUpload(
+        Number(user),
+        document,
+        body
+      );
+      res.status(201).send({ status: 201, result });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({ status: 500, error: error });
+    }
+  }
+
+  async getFile(req: Request, res: Response) {
+    try {
+      const { docId } = req.query;
+      if (!docId) {
+        throw new Error("No Hash for File Passed!");
+      }
+
+      const { contentType, response } = await documentService.getFile(
+        docId as string
+      );
+      const result = await response.arrayBuffer();
+      const buffer = Buffer.from(result);
+      const key = await keyGen(process.env.ENCRY_KEY as string);
+      const resultDecrypt = await decryptBuffers(
+        process.env.ENCRY_ALGO as string,
+        key,
+        buffer
+      );
+      res.setHeader("Content-Type", contentType);
+      res.status(200).send(resultDecrypt);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json(error);
+    }
+  }
+
+  async verifyFileBlockChain(req: Request, res: Response) {
+    try {
+      const { hash } = req.body;
+      const results = await documentService.verifyFileBlockChain(hash);
+      res.status(200).send(results);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send(error);
     }
   }
 }

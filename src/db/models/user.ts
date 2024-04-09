@@ -8,7 +8,7 @@ import {
   HasMany,
   PrimaryKey,
 } from "sequelize-typescript";
-import Post from "./document";
+import Document from "./document";
 
 @Table({
   timestamps: true,
@@ -16,7 +16,6 @@ import Post from "./document";
   modelName: "User",
 })
 class User extends Model {
-  // @PrimaryKey
   @Column({
     type: DataType.INTEGER,
     primaryKey: true,
@@ -50,12 +49,19 @@ class User extends Model {
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
+    defaultValue: "user",
   })
-  role!: string;
+  role?: string;
 
-  @HasMany(() => Post)
-  posts!: Post[];
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: true,
+  })
+  active?: string;
+
+  @HasMany(() => Document)
+  documents!: Document[];
 }
 
 export default User;
