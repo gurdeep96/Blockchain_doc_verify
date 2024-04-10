@@ -3,41 +3,69 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpService } from '../http.service';
+import { StorageService } from '../storage.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-document',
   standalone: true,
-  imports: [CommonModule],
-  providers: [HttpService],
+  imports: [FormsModule, CommonModule],
+  providers: [HttpService, StorageService],
   templateUrl: './document.component.html',
   styleUrl: './document.component.css',
 })
 export class DocumentComponent implements OnInit {
   protected items: any;
   protected file: string | ArrayBuffer | null = null;
+  public searchTerm: string = '';
   hover: string | null = null;
+  userName: string = '';
+  public itemId: any;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private httpService: HttpService
+    private httpService: HttpService,
+    private storageService: StorageService
   ) {}
 
   ngOnInit(): void {
-    const itemId = this.route.snapshot.paramMap.get('id');
+    let itemId;
+    itemId = this.route.snapshot.paramMap.get('id');
+
+    if (!itemId) {
+      itemId = this.storageService.getUserId();
+    }
+    this.itemId = itemId;
     this.getDocumentById(itemId as string);
   }
 
   getDocumentById(id: string) {
     this.httpService.getDocumentById(id).subscribe((data) => {
       if (data.status == 200) {
+        this.userName = data.name;
         this.items = data.result;
       }
     });
   }
 
+  search() {
+    if (!this.searchTerm) {
+      this.getDocumentById(this.itemId);
+    } else {
+      this.httpService
+        .searchDocumentByUserId(this.itemId, this.searchTerm)
+        .subscribe((data) => {
+          if (data.status == 200) {
+            this.items = data.result;
+          }
+        });
+    }
+  }
+
   async getFile(path: string, filename: string) {
     try {
-      const response = await this.httpService.openFileInNewTab(path);
+      const response = await this.httpService.getFileByPath(path);
       const blob = new Blob([response as Blob], {
         type: 'application/octet-stream',
       });

@@ -14,6 +14,7 @@ export class StorageService {
     new BehaviorSubject<string>('');
   currentUser = this.currentUserSubject.asObservable();
   constructor(private router: Router) {}
+
   clean(): void {
     window.sessionStorage.clear();
   }
@@ -32,12 +33,24 @@ export class StorageService {
     return 0;
   }
 
+  public getUserId(): any {
+    const token = window.sessionStorage.getItem(USER_KEY);
+    if (token) {
+      const decoded = jwtDecode(token);
+      const { userId } = decoded as any;
+      if (!userId) return -1;
+      else return userId;
+    }
+
+    return 0;
+  }
+
   public getRole(): any {
     const token = this.getToken();
     if (token) {
       const decoded = jwtDecode(token);
       const { role } = decoded as any;
-      if (!role) return 'User';
+      if (!role) return 'user';
       else return role;
     }
 

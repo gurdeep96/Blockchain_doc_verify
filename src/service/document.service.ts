@@ -45,6 +45,19 @@ export class DocumentService {
         throw new Error("User not found!");
       }
       const documents = await documentRepo.findDocsByUser(userId);
+      return { username: user.firstName, documents };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async searchDocumentsFilterByUser(userId: number, value: string) {
+    try {
+      const user = await userRepo.findOne(userId);
+      if (!user) {
+        throw new Error("User not found!");
+      }
+      const documents = await documentRepo.searchDocFilterByUser(userId, value);
       return documents;
     } catch (error) {
       throw error;
@@ -137,6 +150,61 @@ export class DocumentService {
     }
   }
 
+  async fileUploadIpfs(
+    userId: number,
+    file: Express.Multer.File | undefined,
+    body: any
+  ) {
+    try {
+      if (!file) {
+        throw new Error("File is Required!");
+      }
+      if (!this.ipfs) {
+        this.ipfs = await thirdwebIpfsCreate();
+      }
+      const fileSizeMB = file.size / 10 ** 6;
+      const mimeType = file.mimetype;
+      const fsInputStream = fs.createReadStream(file.path);
+      const hashed = await sha256hashAsync(fsInputStream);
+
+      const hashDB = await this.findOneByHash(hashed);
+
+      if (hashDB) {
+        throw new Error("File Already Present!");
+      }
+      const keys = await keyGen(process.env.ENCRY_KEY as string);
+      const fileSave = await ipfsUploadEncryptedFile(
+        this.ipfs,
+        process.env.ENCRY_ALGO as string,
+        keys as string,
+        file.path,
+        file.filename
+      );
+
+      const filePath = fileSave.split("//")[1];
+      const extension = file.originalname.substring(
+        file.originalname.lastIndexOf("."),
+        file.originalname.length
+      );
+      const { title, issuer, identifierId } = body;
+      const create = {} as { [key: string]: any };
+      create.title = title;
+      create.filePath = filePath;
+      create.hash = hashed;
+      create.issuer = issuer;
+      create.fileSizeMB = fileSizeMB;
+      create.extension = extension;
+      create.fileIdentifier = identifierId;
+      create.mimeType = mimeType;
+      create.fileName = file?.originalname;
+
+      const result = await documentRepo.createDocument(create, userId);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async fileUpload(
     userId: number,
     file: Express.Multer.File | undefined,
@@ -195,7 +263,9 @@ export class DocumentService {
         },
         accountAddress
       );
-      create.transactionId = blockChainResult.transactionHash;
+
+      if (blockChainResult.transactionHash)
+        create.transactionId = blockChainResult.transactionHash;
       console.log("TX BLOCKCHAIN", blockChainResult);
 
       const result = await documentRepo.createDocument(create, userId);
@@ -211,7 +281,10 @@ export class DocumentService {
       const docContract = await web3Service.getDocContract(web3Client);
       const results = await docContract.methods
         .certifyFile(data.fileHash, data.filePath, data.fileIdentifier)
-        .send({ from: accountAddress });
+        .send({
+          from: accountAddress,
+          value: web3Client.utils.toWei("1", "ether"),
+        });
 
       return results;
     } catch (error) {

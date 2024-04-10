@@ -79,6 +79,63 @@ export class DocumentRepository {
     });
   }
 
+  async searchDocFilterByUser(id: number, searchTerm: string) {
+    return await Document.findAll({
+      where: {
+        userId: id,
+        [Op.or]: [
+          Sequelize.where(
+            Sequelize.fn("LOWER", Sequelize.col("title")),
+            "LIKE",
+            `%${searchTerm.toLowerCase()}%`
+          ),
+          Sequelize.where(
+            Sequelize.fn("LOWER", Sequelize.col("documentPath")),
+            "LIKE",
+            `%${searchTerm.toLowerCase()}%`
+          ),
+          Sequelize.where(
+            Sequelize.fn("LOWER", Sequelize.col("hash")),
+            "LIKE",
+            `%${searchTerm.toLowerCase()}%`
+          ),
+          Sequelize.where(
+            Sequelize.fn("LOWER", Sequelize.col("fileIdentifier")),
+            "LIKE",
+            `%${searchTerm.toLowerCase()}%`
+          ),
+          Sequelize.where(
+            Sequelize.fn("LOWER", Sequelize.col("issuer")),
+            "LIKE",
+            `%${searchTerm.toLowerCase()}%`
+          ),
+          Sequelize.where(
+            Sequelize.fn("LOWER", Sequelize.col("fileName")),
+            "LIKE",
+            `%${searchTerm.toLowerCase()}%`
+          ),
+          Sequelize.where(
+            Sequelize.fn("LOWER", Sequelize.col("createdAt")),
+            "LIKE",
+            `%${searchTerm.toLowerCase()}%`
+          ),
+        ],
+      },
+      attributes: [
+        "title",
+        "fileName",
+        "documentPath",
+        "hash",
+        "transactionId",
+        "issuer",
+        "fileIdentifier",
+        "fileSizeMB",
+        "createdAt",
+        "updatedAt",
+      ],
+    });
+  }
+
   async findAll() {
     return await Document.findAll({
       include: {

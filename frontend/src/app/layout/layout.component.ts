@@ -23,9 +23,9 @@ export class LayoutComponent implements OnInit {
     this.storageService.currentUser.subscribe((username: string) => {
       this.userName = username;
       this.cdr.detectChanges();
-      console.log('User name updated:', this.userName);
     });
   }
+
   logOut() {
     this.storageService.logout();
   }

@@ -1,6 +1,18 @@
 <br />
-<h3>&nbsp; List of Uploaded Documents</h3>
+<h4>
+  &nbsp; List of Uploaded Documents for
+  <span style="color: blue">{{ userName }}</span>
+</h4>
 <h5>&nbsp;&nbsp; Double click to download</h5>
+<br />
+&nbsp;&nbsp;<input
+  style="width: 400px; height: 40px"
+  type="text"
+  [(ngModel)]="searchTerm"
+  placeholder="Enter search term"
+/>
+&nbsp;<button class="btn btn-primary" (click)="search()">Search</button>
+<br />
 <br />
 <div class="container">
   <div class="row">
@@ -27,7 +39,7 @@
             <span class="pink-text">IPFS Hash :</span> {{ item.documentPath }}
           </p>
           <p class="card-text">
-            <span class="pink-text">Hash sha 256 :</span> {{ item.hash }}
+            <span class="pink-text">Hash (sha-256) :</span> {{ item.hash }}
           </p>
           <p class="card-text">
             <span class="pink-text">File Identifier :</span>

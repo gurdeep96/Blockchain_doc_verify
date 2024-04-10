@@ -1,10 +1,11 @@
 <div class="container mt-4">
   <div class="row justify-content-center">
     <div class="col-md-6 custom-form" *ngIf="enableUpload">
-      <h5>Make Note of the Transaction Hash returned after Upload</h5>
+      <h5 style="text-align: center">Upload File to Blockchain</h5>
+
       <br />
       <div class="border rounded p-4">
-        <form (ngSubmit)="submitForm()">
+        <form (ngSubmit)="submit()">
           <div class="mb-3">
             <label for="title" class="form-label">User Id :</label>
             <input
@@ -57,14 +58,22 @@
               type="file"
               id="file"
               name="file"
-              (change)="onFileSelected($event)"
+              (change)="onFileSelecteds($event)"
               class="form-control"
               required
             />
           </div>
-          <button type="submit" class="btn btn-primary">Submit</button>
+          <button type="submit" class="btn btn-primary">Upload</button>
         </form>
       </div>
+    </div>
+
+    <div style="text-align: center" *ngIf="enableUpload">
+      <br />
+
+      <h6>
+        <span style="color: blue">Wallet Account Address</span> : {{ wallet }}
+      </h6>
     </div>
     <div class="col-md-8 custom-form" *ngIf="!enableUpload">
       <h3 class="error-message" style="color: brown">
@@ -111,6 +120,8 @@
         {{ uploadResponse.createdAt }}
       </p>
     </div>
+  </div>
+  <div>
     <p *ngIf="!uploadFlag" class="error-message">
       {{ uploadResponse }}
     </p>

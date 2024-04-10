@@ -70,7 +70,7 @@ export class UserController {
         .send({ status: 201, result: response, message: "User Created!" });
     } catch (error) {
       console.log(error);
-      res.status(500).send({ error });
+      res.status(500).send({ code: 500, result: error });
     }
   }
 }

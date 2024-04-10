@@ -42,6 +42,22 @@ export class HttpService {
     return this.http.get(BACKEND_API + `/documents/user/${id}`, httpOptions);
   }
 
+  searchDocumentByUserId(id: string, searchTerm: string): Observable<any> {
+    const bearerToken = this.storageService.getToken();
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${bearerToken}`,
+      }),
+    };
+
+    return this.http.post(
+      BACKEND_API + `/documents/search/${id}`,
+      { search: searchTerm },
+      httpOptions
+    );
+  }
+
   uploadFile(form: any, userId: string) {
     const bearerToken = this.storageService.getToken();
     const httpOptions = {
@@ -56,20 +72,21 @@ export class HttpService {
     );
   }
 
-  getFileByPath(path: string) {
+  uploadFileIpfs(form: any, userId: string) {
     const bearerToken = this.storageService.getToken();
     const httpOptions = {
       headers: new HttpHeaders({
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${bearerToken}`,
       }),
-      params: { docId: path },
     };
-
-    return this.http.get(BACKEND_API + `/getfile`, httpOptions);
+    return this.http.post(
+      BACKEND_API + `/docupload/${userId}`,
+      form,
+      httpOptions
+    );
   }
 
-  openFileInNewTab(path: string) {
+  getFileByPath(path: string) {
     const bearerToken = this.storageService.getToken();
     const httpOptions = {
       headers: new HttpHeaders({
@@ -80,6 +97,22 @@ export class HttpService {
       responseType: 'blob' as const,
     };
     return this.http.get(BACKEND_API + `/getfile`, httpOptions).toPromise();
+  }
+
+  verifyFile(value: string) {
+    const bearerToken = this.storageService.getToken();
+    const httpOptions = {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${bearerToken}`,
+      }),
+    };
+    return this.http.post(
+      BACKEND_API + `/checkfileauthenticity`,
+      {
+        hash: value,
+      },
+      httpOptions
+    );
   }
 
   private extractFile(response: Response) {

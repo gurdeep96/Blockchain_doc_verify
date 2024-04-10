@@ -6,6 +6,7 @@ import { TokenExpirationGuard } from './auth-token.guard';
 import { DocumentComponent } from './document/document.component';
 import { UploadFileComponent } from './upload-file/upload-file.component';
 import { SignupComponent } from './signup/signup.component';
+import { VerifyfileComponent } from './verifyfile/verifyfile.component';
 
 export const routes: Routes = [
   {
@@ -26,6 +27,16 @@ export const routes: Routes = [
     path: 'dashboard',
     canActivate: [TokenExpirationGuard],
     component: DashboardComponent,
+  },
+  {
+    path: 'verify',
+    canActivate: [TokenExpirationGuard],
+    component: VerifyfileComponent,
+  },
+  {
+    path: 'document',
+    canActivate: [TokenExpirationGuard],
+    component: DocumentComponent,
   },
   {
     path: 'document/:id',

@@ -18,6 +18,11 @@ DocumentRouter.get(
   authMiddleware,
   documentController.getDocumentsByUser
 );
+DocumentRouter.post(
+  "/documents/search/:userId",
+  authMiddleware,
+  documentController.filterDocumentsByUser
+);
 DocumentRouter.get(
   "/documents/storage-size",
   authMiddleware,
@@ -56,6 +61,15 @@ DocumentRouter.post(
   adminAuthorize,
   multerSingle,
   documentController.fileUpload
+);
+
+// Frontend doing contract transaction call method
+DocumentRouter.post(
+  "/docupload/:userId",
+  authMiddleware,
+  adminAuthorize,
+  multerSingle,
+  documentController.fileUploadIpfs
 );
 DocumentRouter.get("/getfile", authMiddleware, documentController.getFile);
 DocumentRouter.post(

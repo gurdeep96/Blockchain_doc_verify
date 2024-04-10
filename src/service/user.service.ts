@@ -21,17 +21,17 @@ export class UserService {
   }
 
   async signInUser(email: string, password: string) {
-    const userEmail = await userRepo.findByEmail(email);
+    const user = await userRepo.findByEmail(email);
 
-    if (!userEmail) {
+    if (!user) {
       throw new Error("User not Found!");
-    } else if (!(await bcrypt.compare(password, userEmail.password))) {
+    } else if (!(await bcrypt.compare(password, user.password))) {
       throw new Error("Invalid password!");
     } else {
-      const tokenGen = (userEmail: any) => {
+      const tokenGen = (user: any) => {
         return new Promise((resolve, reject) => {
           jwt.sign(
-            { userId: userEmail.id, email: email, role: userEmail.role },
+            { userId: user.id, role: user.role },
             process.env.JWT_SECRET as string,
             { expiresIn: "30m" },
             (err, token) => {
@@ -44,8 +44,8 @@ export class UserService {
           );
         });
       };
-      const token = await tokenGen(userEmail);
-      return { token: token, username: userEmail.firstName };
+      const token = await tokenGen(user);
+      return { token: token, username: user.firstName };
     }
   }
 

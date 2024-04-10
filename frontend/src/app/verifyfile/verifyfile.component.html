@@ -1,0 +1,46 @@
+<br />
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Check Verified Document</h3>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="onSubmit()" #f="ngForm" novalidate>
+            <div class="form-group">
+              <h5>Enter Sha 256 Hash / Transaction Hash</h5>
+              <br />
+              <input
+                type="text"
+                class="form-control"
+                name="value"
+                [(ngModel)]="form.value"
+                required
+                #value="ngModel"
+              />
+            </div>
+            <br />
+
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary btn-block">
+                Go
+              </button>
+            </div>
+            <br />
+            <div class="form-group" *ngIf="f.submitted && verifiedFlag">
+              <div>
+                {{ responseMessage }}
+              </div>
+            </div>
+            <div class="form-group" *ngIf="f.submitted && !verifiedFlag">
+              <div class="alert alert-danger" role="alert">
+                {{ errorMessage }}
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

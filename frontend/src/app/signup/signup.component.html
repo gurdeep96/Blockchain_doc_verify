@@ -1,12 +1,11 @@
-<!-- app.component.html
-<h3>Sign Up</h3>
+<!-- <h3>Sign Up</h3>
 <div class="container mt-4">
   <div class="row justify-content-center">
     <div class="col-md-6 custom-form">
       <div class="border rounded p-4">
-        <form (ngSubmit)="submitForm()">
+        <form #f="ngForm" (ngSubmit)="submitForm()">
           <div class="mb-3">
-            <label class="form-label">FirstName :</label>
+            <label for="firstName" class="form-label">FirstName :</label>
             <input
               type="text"
               id="firstName"
@@ -15,9 +14,17 @@
               class="form-control"
               required
             />
+            <div
+              *ngIf="
+                f['firstName'].invalid &&
+                (f['firstName'].touched || f.submitted)
+              "
+            >
+              <small class="text-danger">First Name is required</small>
+            </div>
           </div>
           <div class="mb-3">
-            <label class="form-label">LastName :</label>
+            <label for="lastName" class="form-label">LastName :</label>
             <input
               type="text"
               id="lastName"
@@ -26,9 +33,16 @@
               class="form-control"
               required
             />
+            <div
+              *ngIf="
+                f['lastName'].invalid && (f['lastName'].touched || f.submitted)
+              "
+            >
+              <small class="text-danger">Last Name is required</small>
+            </div>
           </div>
           <div class="mb-3">
-            <label class="form-label">Email :</label>
+            <label for="email" class="form-label">Email :</label>
             <input
               type="email"
               id="email"
@@ -36,10 +50,24 @@
               [(ngModel)]="formData.email"
               class="form-control"
               required
+              pattern="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}"
             />
+            <div
+              *ngIf="f['email'].invalid && (f['email'].touched || f.submitted)"
+            >
+              <small
+                class="text-danger"
+                *ngIf="f['email'].errors?.['required']"
+              >
+                Email is required
+              </small>
+              <small class="text-danger" *ngIf="f['email'].errors?.['pattern']">
+                Please enter a valid email address
+              </small>
+            </div>
           </div>
           <div class="mb-3">
-            <label class="form-label">Password :</label>
+            <label for="password" class="form-label">Password :</label>
             <input
               type="password"
               id="password"
@@ -47,11 +75,36 @@
               [(ngModel)]="formData.password"
               class="form-control"
               required
+              minlength="6"
             />
+            <div
+              *ngIf="
+                f['password'].invalid && (f['password'].touched || f.submitted)
+              "
+            >
+              <small
+                class="text-danger"
+                *ngIf="f['password'].errors?.['required']"
+              >
+                Password is required
+              </small>
+              <small
+                class="text-danger"
+                *ngIf="f['password'].errors?.['minlength']"
+              >
+                Password must be at least 6 characters long
+              </small>
+            </div>
           </div>
           <button type="submit" class="btn btn-primary">Submit</button>
         </form>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="form-group" *ngIf="f.submitted && responseFlag">
+  <div>
+    {{ responseMessage }}
   </div>
 </div> -->

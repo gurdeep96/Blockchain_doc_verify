@@ -35,10 +35,10 @@ export class DocumentController {
   async getDocumentsByUser(req: Request, res: Response) {
     try {
       const { userId } = req.params;
-      const response = await documentService.findDocumentsByUser(
+      const { username, documents } = await documentService.findDocumentsByUser(
         Number(userId)
       );
-      res.status(200).send({ status: 200, result: response });
+      res.status(200).send({ status: 200, name: username, result: documents });
     } catch (error) {
       res.status(500).send({ error });
     }
@@ -47,6 +47,21 @@ export class DocumentController {
   async getDocuments(req: Request, res: Response) {
     try {
       const response = await documentService.findAllDocument();
+      res.status(200).send({ status: 200, result: response });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send(error);
+    }
+  }
+
+  async filterDocumentsByUser(req: Request, res: Response) {
+    try {
+      const { userId } = req.params;
+      const { search } = req.body;
+      const response = await documentService.searchDocumentsFilterByUser(
+        Number(userId),
+        search
+      );
       res.status(200).send({ status: 200, result: response });
     } catch (error) {
       console.log(error);
@@ -141,10 +156,36 @@ export class DocumentController {
         document,
         body
       );
+
       res.status(201).send({ status: 201, result });
-    } catch (error) {
-      console.log(error);
-      res.status(500).send({ status: 500, error: error });
+    } catch (error: any) {
+      console.log("FIle upload error", error);
+      res.status(500).send({ status: 500, error: error.message });
+    }
+  }
+
+  async fileUploadIpfs(req: Request, res: Response) {
+    try {
+      if (!req.file) {
+        return res
+          .status(400)
+          .json({ status: 400, result: "Kindly upload a file" });
+      }
+      const document = req.file;
+
+      const body = req.body;
+      const { userId } = res.locals.user;
+      const user = req.params.userId;
+      const result = await documentService.fileUploadIpfs(
+        Number(user),
+        document,
+        body
+      );
+
+      res.status(201).send({ status: 201, result });
+    } catch (error: any) {
+      console.log("FIle ipfs upload error", error);
+      res.status(500).send({ status: 500, message: error.message });
     }
   }
 
@@ -177,10 +218,15 @@ export class DocumentController {
   async verifyFileBlockChain(req: Request, res: Response) {
     try {
       const { hash } = req.body;
+      if (!hash) {
+        return res
+          .status(400)
+          .send({ code: 400, results: "Kindly enter some value" });
+      }
       const results = await documentService.verifyFileBlockChain(hash);
-      res.status(200).send(results);
+      res.status(200).send({ code: 200, results });
     } catch (error) {
-      console.log(error);
+      console.log("VERIFY FILE ERR", error);
       res.status(500).send(error);
     }
   }

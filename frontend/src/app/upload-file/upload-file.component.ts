@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpService } from '../http.service';
 import { ActivatedRoute } from '@angular/router';
 import { StorageService } from '../storage.service';
 import { jwtDecode } from 'jwt-decode';
 import { ContractService } from '../contract.service';
+import { Subscription } from 'rxjs';
 
 interface ApiResponse {
   result: any;
@@ -27,19 +28,24 @@ interface DecodedToken {
   templateUrl: './upload-file.component.html',
   styleUrl: './upload-file.component.css',
 })
-export class UploadFileComponent implements OnInit {
+export class UploadFileComponent implements OnInit, OnDestroy {
   public uploadResponse: any;
   public responseFlag = false;
   public uploadFlag: boolean = false;
   public wallet: any;
   public enableUpload: boolean = false;
   public errorWallet: string = '';
+  public userFlag: boolean = false;
+  accountSubscription: Subscription | undefined;
+  walletBalance: number = 0;
+  web3: any;
 
   constructor(
     private httpService: HttpService,
     private route: ActivatedRoute,
     private storageService: StorageService,
-    private contractService: ContractService
+    private contractService: ContractService,
+    private cdr: ChangeDetectorRef
   ) {}
   formData = {
     title: '',
@@ -49,7 +55,7 @@ export class UploadFileComponent implements OnInit {
     file: null as File | null, // Used to hold the selected file
   };
 
-  ngOnInit(): void {
+  async ngOnInit() {
     const userId = this.route.snapshot.paramMap.get('id');
     const email = this.route.snapshot.paramMap.get('email');
     if (userId) {
@@ -65,20 +71,56 @@ export class UploadFileComponent implements OnInit {
       this.formData.userId = String(userId);
       this.formData.userEmail = email as string;
     }
-    this.getWallet();
+    await this.getWallet();
+    // this.contractService.connectAndSubscribe().subscribe(async (state: any) => {
+    //   this.web3 = state.web3;
+    //   this.wallet = state.currentAccount;
+    //   if (this.web3) {
+    //     await this.getWalletValue(this.wallet);
+    //   }
+    //   console.log(this.web3, this.wallet, this.walletBalance);
+    // });
+
+    await this.changeDetect();
   }
 
-  onFileSelected(event: any) {
+  ngOnDestroy() {
+    if (this.accountSubscription) {
+      this.accountSubscription.unsubscribe();
+    }
+  }
+
+  setWallet(account: string) {
+    this.wallet = account;
+    this.cdr.detectChanges();
+  }
+
+  async changeDetect() {
+    this.contractService.accountChange(async (account: string) => {
+      this.setWallet(account);
+      await this.getWalletValue(account);
+    });
+  }
+
+  onFileSelecteds(event: any) {
     this.formData.file = event.target.files[0] as File;
+  }
+
+  async getWalletValue(account: string) {
+    const balance = await this.web3.eth.getBalance(account);
+    // Convert balance to desired format (e.g., Ether, USD)
+    this.walletBalance = await this.web3.utils.fromWei(balance, 'ether');
+    this.cdr.detectChanges();
   }
 
   async getWallet() {
     try {
       const address = await this.contractService.openWallet();
+      this.web3 = await this.contractService.web3Instance();
       if (address) {
         this.wallet = address;
+        await this.getWalletValue(address);
         this.enableUpload = true;
-        console.log('Wallet ADDRESS', this.wallet);
       } else {
         throw new Error();
       }
@@ -88,16 +130,66 @@ export class UploadFileComponent implements OnInit {
     }
   }
 
+  submit() {
+    const form = new FormData();
+
+    form.append('title', this.formData.title);
+    form.append('identifierId', this.formData.identifierId);
+    form.append('file', this.formData.file as File);
+    this.httpService.uploadFileIpfs(form, this.formData.userId).subscribe({
+      next: async (data) => {
+        const res = data as ApiResponse;
+        this.responseFlag = true;
+        console.log('res', data);
+        if (res.status == 201) {
+          const response = res.result;
+          console.log('res', response);
+          const inputData = {
+            fileHash: response.hash,
+            filePath: response.documentPath,
+            fileIdentifier: response.fileIdentifier,
+          };
+          this.uploadFlag = true;
+          const blockTransact = await this.contractService.uploadToBlockChain(
+            inputData,
+            this.wallet
+          );
+
+          response.transactionId = blockTransact?.transactionHash;
+          this.uploadResponse = response;
+
+          console.log('contract response', blockTransact);
+          // this.formData = {
+          //   title: '',
+          //   identifierId: '',
+          //   userId: '',
+          //   userEmail: '',
+          //   file: null as File | null,
+          // };
+        } else {
+          this.uploadFlag = false;
+          this.uploadResponse = res.result;
+          console.log('error msg', this.uploadResponse);
+        }
+      },
+      error: (error) => {
+        this.uploadFlag = false;
+        this.uploadResponse = error.error.message;
+        this.cdr.detectChanges();
+        console.log('error msg', this.uploadResponse);
+      },
+    });
+  }
+
   submitForm() {
     const form = new FormData();
+
     form.append('title', this.formData.title);
     form.append('identifierId', this.formData.identifierId);
     form.append('file', this.formData.file as File);
     form.append('accountAddress', this.wallet);
-    this.httpService
-      .uploadFile(form, this.formData.userId)
-      .subscribe((data) => {
-        console.log('API res', data);
+    this.httpService.uploadFile(form, this.formData.userId).subscribe({
+      next: (data) => {
         const res = data as ApiResponse;
         this.responseFlag = true;
         if (res.status == 201) {
@@ -111,10 +203,15 @@ export class UploadFileComponent implements OnInit {
             file: null as File | null,
           };
         } else {
-          this.uploadResponse = 'Error Uploading File';
           this.uploadFlag = false;
+          this.uploadResponse = 'Error Uploading File';
           console.log('error msg', this.uploadResponse);
         }
-      });
+      },
+      error: () => {
+        this.uploadFlag = false;
+        this.uploadResponse = 'Operation Failed!';
+      },
+    });
   }
 }

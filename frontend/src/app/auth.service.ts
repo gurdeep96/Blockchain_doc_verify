@@ -32,16 +32,12 @@ export class AuthService {
     email: string,
     password: string
   ): Observable<any> {
-    return this.http.post(
-      AUTH_API + 'createuser',
-      {
-        firstname,
-        lastname,
-        email,
-        password,
-      },
-      httpOptions
-    );
+    return this.http.post(AUTH_API + 'createuser', {
+      firstname,
+      lastname,
+      email,
+      password,
+    });
   }
 
   logout(): Observable<any> {

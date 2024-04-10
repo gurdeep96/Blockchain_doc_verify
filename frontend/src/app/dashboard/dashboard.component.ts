@@ -21,7 +21,6 @@ export class DashboardComponent implements OnInit {
   }
 
   getUsers() {
-    console.log('getUsers initiated');
     this.httpService.getAllUsers().subscribe((data) => {
       if (data.status == 200) {
         this.users = data.result;
