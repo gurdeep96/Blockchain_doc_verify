@@ -126,4 +126,17 @@ export class ContractService {
     }
     return this.docContract;
   }
+
+  async verifyFileBlockChain(hash: string) {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const web3Client = this.web3Instance();
+      const docContract = await this.getDocContract(web3Client);
+      const results = await docContract.methods.verifyFileHash(hash).call();
+      console.log(results);
+      return results;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

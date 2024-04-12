@@ -41,6 +41,14 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  signUp(): void {
+    this.router.navigate(['/signup']);
+  }
+
+  forgotPassword(): void {
+    this.router.navigate(['/forget']);
+  }
+
   onSubmit(): void {
     const { email, password } = this.form;
 
@@ -55,7 +63,8 @@ export class LoginComponent implements OnInit {
 
         this.roles = this.storageService.getRole();
       },
-      error: () => {
+      error: (error) => {
+        console.log(error.error);
         this.errorMessage = 'Invalid Credentials';
         this.isLoginFailed = true;
       },

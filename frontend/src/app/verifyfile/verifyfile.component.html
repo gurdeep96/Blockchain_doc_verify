@@ -9,8 +9,38 @@
         <div class="card-body">
           <form (ngSubmit)="onSubmit()" #f="ngForm" novalidate>
             <div class="form-group">
-              <h5>Enter Sha 256 Hash / Transaction Hash</h5>
+              <h5>Enter Value :</h5>
               <br />
+              <div class="radio-buttons">
+                <label>
+                  <input
+                    type="radio"
+                    [(ngModel)]="selectedOption"
+                    name="options"
+                    value="fileHash"
+                    default
+                  />
+                  File Hash (sha-256)
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    [(ngModel)]="selectedOption"
+                    name="options"
+                    value="fileIdentifier"
+                  />
+                  File Identifier Id
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    [(ngModel)]="selectedOption"
+                    name="options"
+                    value="transactionHash"
+                  />
+                  Transaction Hash
+                </label>
+              </div>
               <input
                 type="text"
                 class="form-control"
@@ -23,12 +53,12 @@
             <br />
 
             <div class="form-group">
-              <button type="submit" class="btn btn-primary btn-block">
-                Go
+              <button type="submit" class="btn btn-success btn-block">
+                Check
               </button>
             </div>
             <br />
-            <div class="form-group" *ngIf="f.submitted && verifiedFlag">
+            <div [ngClass]="responseClass" *ngIf="f.submitted && verifiedFlag">
               <div>
                 {{ responseMessage }}
               </div>

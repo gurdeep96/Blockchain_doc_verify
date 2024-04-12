@@ -44,8 +44,8 @@ export class DocumentService {
       if (!user) {
         throw new Error("User not found!");
       }
-      const documents = await documentRepo.findDocsByUser(userId);
-      return { username: user.firstName, documents };
+      const { count, rows } = await documentRepo.findDocsByUser(userId);
+      return { username: user.firstName, documents: rows, count: count };
     } catch (error) {
       throw error;
     }
@@ -57,8 +57,11 @@ export class DocumentService {
       if (!user) {
         throw new Error("User not found!");
       }
-      const documents = await documentRepo.searchDocFilterByUser(userId, value);
-      return documents;
+      const { count, rows } = await documentRepo.searchDocFilterByUser(
+        userId,
+        value
+      );
+      return { count, response: rows };
     } catch (error) {
       throw error;
     }
@@ -82,6 +85,10 @@ export class DocumentService {
 
   async createDocument(Document: any, userId: string) {
     return await documentRepo.createDocument(Document, Number(userId));
+  }
+
+  async updateTxIdByDocId(id: number, txId: string) {
+    return await documentRepo.updateTxIdByDocId(id, txId);
   }
 
   async updateDocument(id: number, Document: any) {
@@ -292,12 +299,27 @@ export class DocumentService {
     }
   }
 
-  async verifyFileBlockChain(hash: string) {
+  async verifyFileBlockChain(value: string, option: string) {
     try {
       const web3Client = await web3Service.getWeb3Client();
       const docContract = await web3Service.getDocContract(web3Client);
-      const results = await docContract.methods.verifyFileHash(hash).call();
-      console.log(results);
+      let results = false;
+      if (option == "transactionHash") {
+        const res = await documentRepo.findByTxHash(value);
+        if (res?.hash) {
+          console.log("trasnaction hash", res.hash);
+          results = await docContract.methods.verifyFileHash(res.hash).call();
+        }
+      } else if (option == "fileIdentifier") {
+        const res = await documentRepo.findByFileIdentifier(value);
+        if (res?.hash) {
+          console.log("file iden", res.hash);
+          results = await docContract.methods.verifyFileHash(res.hash).call();
+        }
+      } else {
+        results = await docContract.methods.verifyFileHash(value).call();
+      }
+      console.log("verify call result contract", results);
       return results;
     } catch (error) {
       throw error;

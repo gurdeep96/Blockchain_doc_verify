@@ -7,6 +7,7 @@ import { DocumentComponent } from './document/document.component';
 import { UploadFileComponent } from './upload-file/upload-file.component';
 import { SignupComponent } from './signup/signup.component';
 import { VerifyfileComponent } from './verifyfile/verifyfile.component';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 
 export const routes: Routes = [
   {
@@ -20,8 +21,11 @@ export const routes: Routes = [
   },
   {
     path: 'signup',
-    canActivate: [TokenExpirationGuard],
     component: SignupComponent,
+  },
+  {
+    path: 'forget',
+    component: ForgotPasswordComponent,
   },
   {
     path: 'dashboard',

@@ -21,6 +21,12 @@ export class DocumentRepository {
     });
   }
 
+  async findByTxHash(txId: string) {
+    return await Document.findOne({
+      where: { transactionId: txId },
+    });
+  }
+
   async findTotalFileStorage(): Promise<IStorageSum[]> {
     return await Document.aggregate("fileSizeMB", "SUM", {
       plain: false,
@@ -62,7 +68,7 @@ export class DocumentRepository {
   }
 
   async findDocsByUser(id: number) {
-    return await Document.findAll({
+    return await Document.findAndCountAll({
       where: { userId: id },
       attributes: [
         "title",
@@ -80,7 +86,7 @@ export class DocumentRepository {
   }
 
   async searchDocFilterByUser(id: number, searchTerm: string) {
-    return await Document.findAll({
+    return await Document.findAndCountAll({
       where: {
         userId: id,
         [Op.or]: [
@@ -111,6 +117,11 @@ export class DocumentRepository {
           ),
           Sequelize.where(
             Sequelize.fn("LOWER", Sequelize.col("fileName")),
+            "LIKE",
+            `%${searchTerm.toLowerCase()}%`
+          ),
+          Sequelize.where(
+            Sequelize.fn("LOWER", Sequelize.col("extension")),
             "LIKE",
             `%${searchTerm.toLowerCase()}%`
           ),
@@ -160,6 +171,20 @@ export class DocumentRepository {
       fileIdentifier: body.fileIdentifier,
       mimeType: body.mimeType,
     });
+  }
+
+  async updateTxIdByDocId(id: number, txId: string) {
+    console.log(id, txId);
+    return await Document.update(
+      {
+        transactionId: txId,
+      },
+      {
+        where: {
+          id: id,
+        },
+      }
+    );
   }
 
   async updateDocument(id: number, P: any) {

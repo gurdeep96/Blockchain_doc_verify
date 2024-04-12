@@ -1,110 +1,107 @@
-<!-- <h3>Sign Up</h3>
-<div class="container mt-4">
+<br />
+<div class="container">
   <div class="row justify-content-center">
-    <div class="col-md-6 custom-form">
-      <div class="border rounded p-4">
-        <form #f="ngForm" (ngSubmit)="submitForm()">
-          <div class="mb-3">
-            <label for="firstName" class="form-label">FirstName :</label>
-            <input
-              type="text"
-              id="firstName"
-              name="firstName"
-              [(ngModel)]="formData.firstName"
-              class="form-control"
-              required
-            />
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Sign Up</h3>
+        </div>
+        <div class="card-body">
+          <form
+            *ngIf="!isLoggedIn"
+            (ngSubmit)="submitForm()"
+            #f="ngForm"
+            novalidate
+          >
+            <div class="form-group">
+              <label for="firstName">First Name :</label>
+              <input
+                type="text"
+                class="form-control"
+                name="firstName"
+                [(ngModel)]="form.firstName"
+                required
+                #firstName="ngModel"
+              />
+            </div>
             <div
-              *ngIf="
-                f['firstName'].invalid &&
-                (f['firstName'].touched || f.submitted)
-              "
+              *ngIf="firstName.invalid && (firstName.touched || f.submitted)"
             >
               <small class="text-danger">First Name is required</small>
             </div>
-          </div>
-          <div class="mb-3">
-            <label for="lastName" class="form-label">LastName :</label>
-            <input
-              type="text"
-              id="lastName"
-              name="lastName"
-              [(ngModel)]="formData.lastName"
-              class="form-control"
-              required
-            />
-            <div
-              *ngIf="
-                f['lastName'].invalid && (f['lastName'].touched || f.submitted)
-              "
-            >
+            <div class="form-group">
+              <label for="lastName">Last Name :</label>
+              <input
+                type="text"
+                class="form-control"
+                name="lastName"
+                [(ngModel)]="form.lastName"
+                required
+                #lastName="ngModel"
+              />
+            </div>
+            <div *ngIf="lastName.invalid && (lastName.touched || f.submitted)">
               <small class="text-danger">Last Name is required</small>
             </div>
-          </div>
-          <div class="mb-3">
-            <label for="email" class="form-label">Email :</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              [(ngModel)]="formData.email"
-              class="form-control"
-              required
-              pattern="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}"
-            />
-            <div
-              *ngIf="f['email'].invalid && (f['email'].touched || f.submitted)"
-            >
-              <small
-                class="text-danger"
-                *ngIf="f['email'].errors?.['required']"
-              >
-                Email is required
-              </small>
-              <small class="text-danger" *ngIf="f['email'].errors?.['pattern']">
-                Please enter a valid email address
-              </small>
+            <div class="form-group">
+              <label for="email">Email :</label>
+              <input
+                type="email"
+                class="form-control"
+                name="email"
+                [(ngModel)]="form.email"
+                required
+                #email="ngModel"
+              />
             </div>
-          </div>
-          <div class="mb-3">
-            <label for="password" class="form-label">Password :</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              [(ngModel)]="formData.password"
-              class="form-control"
-              required
-              minlength="6"
-            />
-            <div
-              *ngIf="
-                f['password'].invalid && (f['password'].touched || f.submitted)
-              "
-            >
-              <small
-                class="text-danger"
-                *ngIf="f['password'].errors?.['required']"
-              >
-                Password is required
-              </small>
-              <small
-                class="text-danger"
-                *ngIf="f['password'].errors?.['minlength']"
-              >
-                Password must be at least 6 characters long
-              </small>
+            <div *ngIf="email.invalid && (email.touched || f.submitted)">
+              <small class="text-danger">Email is required</small>
             </div>
+            <div class="form-group">
+              <label for="password">Password :</label>
+              <input
+                type="password"
+                class="form-control"
+                name="password"
+                [(ngModel)]="form.password"
+                required
+                minlength="3"
+                #password="ngModel"
+              />
+            </div>
+            <div *ngIf="password.invalid && (password.touched || f.submitted)">
+              <small class="text-danger">Password is required</small>
+            </div>
+            <br />
+            <div class="form-group">
+              <button
+                type="submit"
+                [disabled]="!f.form.valid"
+                class="btn btn-primary btn-block"
+              >
+                Sign Up
+              </button>
+            </div>
+            <br />
+            <div
+              class="alert alert-success form-group"
+              *ngIf="f.submitted && responseFlag"
+            >
+              <div>
+                {{ responseMessage }}
+              </div>
+            </div>
+            <div class="alert alert-danger form-group" *ngIf="f.submitted">
+              <div>
+                {{ errorMessage }}
+              </div>
+            </div>
+          </form>
+          <div style="text-align: center">
+            <button (click)="login()" class="btn btn-secondary">Login</button>
           </div>
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+        </div>
       </div>
     </div>
   </div>
 </div>
-
-<div class="form-group" *ngIf="f.submitted && responseFlag">
-  <div>
-    {{ responseMessage }}
-  </div>
-</div> -->

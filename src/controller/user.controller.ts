@@ -23,9 +23,9 @@ export class UserController {
         token: response.token,
         username: response.username,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      res.status(500).send({ error: error });
+      res.status(500).send({ status: 500, error: error.message });
     }
   }
 
@@ -65,12 +65,14 @@ export class UserController {
     try {
       const user: IUserInput = req.body;
       const response = await userService.createUser(user);
-      res
-        .status(200)
-        .send({ status: 201, result: response, message: "User Created!" });
-    } catch (error) {
+      res.status(200).send({
+        status: 201,
+        result: { email: response.email, id: response.id },
+        message: "User Created!",
+      });
+    } catch (error: any) {
       console.log(error);
-      res.status(500).send({ code: 500, result: error });
+      res.status(500).send({ status: 500, result: error.message });
     }
   }
 }

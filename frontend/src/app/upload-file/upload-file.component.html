@@ -7,17 +7,6 @@
       <div class="border rounded p-4">
         <form (ngSubmit)="submit()">
           <div class="mb-3">
-            <label for="title" class="form-label">User Id :</label>
-            <input
-              type="text"
-              id="userid"
-              name="userid"
-              [(ngModel)]="formData.userId"
-              class="form-control"
-              disabled
-            />
-          </div>
-          <div class="mb-3">
             <label for="title" class="form-label">User Email :</label>
             <input
               type="text"
@@ -72,7 +61,8 @@
       <br />
 
       <h6>
-        <span style="color: blue">Wallet Account Address</span> : {{ wallet }}
+        <span style="color: blue">Current Wallet Account Address</span> :
+        {{ wallet }}
       </h6>
     </div>
     <div class="col-md-8 custom-form" *ngIf="!enableUpload">
@@ -90,7 +80,10 @@
     [ngClass]="{ success: uploadFlag, error: !uploadFlag }"
   >
     <h4 class="mb-3">Upload Result</h4>
-    <div class="success-message">
+    <h5 class="mb-3">
+      Note: Transaction takes a while to succeed , kindly wait for few minutes
+    </h5>
+    <div *ngIf="uploadFlag" class="alert alert-success success-message">
       <p *ngIf="uploadFlag">
         <span class="font-weight-bold">File Name:</span>
         {{ uploadResponse.fileName }}
@@ -120,10 +113,13 @@
         {{ uploadResponse.createdAt }}
       </p>
     </div>
-  </div>
-  <div>
-    <p *ngIf="!uploadFlag" class="error-message">
-      {{ uploadResponse }}
-    </p>
+    <div>
+      <p
+        *ngIf="responseFlag && !uploadFlag"
+        class="alert alert-danger error-message"
+      >
+        {{ errorResponse }}
+      </p>
+    </div>
   </div>
 </div>

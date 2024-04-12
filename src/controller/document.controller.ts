@@ -35,10 +35,11 @@ export class DocumentController {
   async getDocumentsByUser(req: Request, res: Response) {
     try {
       const { userId } = req.params;
-      const { username, documents } = await documentService.findDocumentsByUser(
-        Number(userId)
-      );
-      res.status(200).send({ status: 200, name: username, result: documents });
+      const { username, documents, count } =
+        await documentService.findDocumentsByUser(Number(userId));
+      res
+        .status(200)
+        .send({ status: 200, name: username, count: count, result: documents });
     } catch (error) {
       res.status(500).send({ error });
     }
@@ -58,14 +59,30 @@ export class DocumentController {
     try {
       const { userId } = req.params;
       const { search } = req.body;
-      const response = await documentService.searchDocumentsFilterByUser(
-        Number(userId),
-        search
-      );
-      res.status(200).send({ status: 200, result: response });
+      const { count, response } =
+        await documentService.searchDocumentsFilterByUser(
+          Number(userId),
+          search
+        );
+      res.status(200).send({ status: 200, count: count, result: response });
     } catch (error) {
       console.log(error);
       res.status(500).send(error);
+    }
+  }
+
+  async updateTxIdByDocId(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const { txId } = req.body;
+
+      const response = await documentService.updateTxIdByDocId(
+        Number(id),
+        txId
+      );
+      res.status(200).send({ status: 200, result: response });
+    } catch (error: any) {
+      res.status(500).send({ status: 500, result: error.message });
     }
   }
 
@@ -79,7 +96,7 @@ export class DocumentController {
       );
       res.status(200).send({ status: 200, result: response });
     } catch (error) {
-      res.status(500).send({ error });
+      res.status(500).send({ result: error });
     }
   }
 
@@ -90,7 +107,7 @@ export class DocumentController {
       const response = await documentService.deleteDocument(Number(id));
       res.status(200).send({ status: 200, result: response });
     } catch (error) {
-      res.status(500).send({ error });
+      res.status(500).send({ result: error });
     }
   }
 
@@ -104,7 +121,7 @@ export class DocumentController {
         .send({ status: 201, result: response, message: "Document Created!" });
     } catch (error) {
       console.log(error);
-      res.status(500).send({ error });
+      res.status(500).send({ result: error });
     }
   }
 
@@ -117,7 +134,7 @@ export class DocumentController {
         .send({ status: 201, result: response, message: "Document Assigned!" });
     } catch (error) {
       console.log(error);
-      res.status(500).send({ error });
+      res.status(500).send({ result: error });
     }
   }
 
@@ -135,7 +152,7 @@ export class DocumentController {
       });
     } catch (error) {
       console.log(error);
-      res.status(500).send({ error });
+      res.status(500).send({ result: error });
     }
   }
 
@@ -217,14 +234,14 @@ export class DocumentController {
 
   async verifyFileBlockChain(req: Request, res: Response) {
     try {
-      const { hash } = req.body;
+      const { hash, option } = req.body;
       if (!hash) {
         return res
           .status(400)
           .send({ code: 400, results: "Kindly enter some value" });
       }
-      const results = await documentService.verifyFileBlockChain(hash);
-      res.status(200).send({ code: 200, results });
+      const result = await documentService.verifyFileBlockChain(hash, option);
+      res.status(200).send({ status: 200, result });
     } catch (error) {
       console.log("VERIFY FILE ERR", error);
       res.status(500).send(error);

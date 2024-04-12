@@ -86,6 +86,20 @@ export class HttpService {
     );
   }
 
+  updateFileTransactionHash(id: number, txId: string) {
+    const bearerToken = this.storageService.getToken();
+    const httpOptions = {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${bearerToken}`,
+      }),
+    };
+    return this.http.put(
+      BACKEND_API + `/document/updatetransaction/${id}`,
+      { txId: txId },
+      httpOptions
+    );
+  }
+
   getFileByPath(path: string) {
     const bearerToken = this.storageService.getToken();
     const httpOptions = {
@@ -99,7 +113,7 @@ export class HttpService {
     return this.http.get(BACKEND_API + `/getfile`, httpOptions).toPromise();
   }
 
-  verifyFile(value: string) {
+  verifyFile(value: string, option: string) {
     const bearerToken = this.storageService.getToken();
     const httpOptions = {
       headers: new HttpHeaders({
@@ -110,6 +124,7 @@ export class HttpService {
       BACKEND_API + `/checkfileauthenticity`,
       {
         hash: value,
+        option: option,
       },
       httpOptions
     );

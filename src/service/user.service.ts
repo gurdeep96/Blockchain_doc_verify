@@ -54,6 +54,9 @@ export class UserService {
   }
 
   async createUser(user: IUserInput) {
+    if (!user.email) {
+      throw new Error("Email Required!");
+    }
     if (!user.password) {
       throw new Error("Password Required!");
     }

@@ -50,6 +50,11 @@ DocumentRouter.put(
   authMiddleware,
   documentController.updateDocuments
 );
+DocumentRouter.put(
+  "/document/updatetransaction/:id",
+  authMiddleware,
+  documentController.updateTxIdByDocId
+);
 DocumentRouter.delete(
   "/deletedocument/:id",
   authMiddleware,

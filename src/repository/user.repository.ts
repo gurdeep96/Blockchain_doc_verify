@@ -2,7 +2,7 @@ import db from "../db/models/index";
 import { IUser, IUserInput, IUserResponse } from "../interface/user.interface";
 import User from "../db/models/user";
 import Document from "../db/models/document";
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 
 export class UserRepository {
   async findOne(id: number) {
@@ -20,11 +20,13 @@ export class UserRepository {
   async findAll() {
     return await User.findAll({
       attributes: { exclude: ["password", "updatedAt", "active"] },
-      include: {
-        model: Document,
-        attributes: ["title", "documentPath", "hash", "issuer"],
-      },
-      nest: true,
+      // include: {
+      //   model: Document,
+      //   attributes: [
+      //     [Sequelize.fn("COUNT", Sequelize.col("documents.id")), "docCount"],
+      //   ],
+      //   foreignKey: "userId",
+      // },
     });
   }
 

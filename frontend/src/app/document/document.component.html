@@ -3,7 +3,7 @@
   &nbsp; List of Uploaded Documents for
   <span style="color: blue">{{ userName }}</span>
 </h4>
-<h5>&nbsp;&nbsp; Double click to download</h5>
+<h5 style="color: grey">&nbsp;&nbsp; Double click to download</h5>
 <br />
 &nbsp;&nbsp;<input
   style="width: 400px; height: 40px"
@@ -13,6 +13,7 @@
 />
 &nbsp;<button class="btn btn-primary" (click)="search()">Search</button>
 <br />
+<h5>&nbsp;&nbsp;<span style="color: grey">Count : </span>{{ docCount }}</h5>
 <br />
 <div class="container">
   <div class="row">

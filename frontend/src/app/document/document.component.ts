@@ -18,9 +18,10 @@ export class DocumentComponent implements OnInit {
   protected items: any;
   protected file: string | ArrayBuffer | null = null;
   public searchTerm: string = '';
-  hover: string | null = null;
-  userName: string = '';
+  public hover: string | null = null;
+  public userName: string = '';
   public itemId: any;
+  public docCount: number = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -44,6 +45,7 @@ export class DocumentComponent implements OnInit {
     this.httpService.getDocumentById(id).subscribe((data) => {
       if (data.status == 200) {
         this.userName = data.name;
+        this.docCount = data.count;
         this.items = data.result;
       }
     });
@@ -58,6 +60,7 @@ export class DocumentComponent implements OnInit {
         .subscribe((data) => {
           if (data.status == 200) {
             this.items = data.result;
+            this.docCount = data.count;
           }
         });
     }

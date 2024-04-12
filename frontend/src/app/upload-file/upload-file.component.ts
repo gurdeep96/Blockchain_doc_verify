@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpService } from '../http.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { StorageService } from '../storage.service';
 import { jwtDecode } from 'jwt-decode';
 import { ContractService } from '../contract.service';
@@ -30,11 +30,12 @@ interface DecodedToken {
 })
 export class UploadFileComponent implements OnInit, OnDestroy {
   public uploadResponse: any;
-  public responseFlag = false;
+  public responseFlag: boolean = false;
   public uploadFlag: boolean = false;
   public wallet: any;
   public enableUpload: boolean = false;
   public errorWallet: string = '';
+  public errorResponse: string = '';
   public userFlag: boolean = false;
   accountSubscription: Subscription | undefined;
   walletBalance: number = 0;
@@ -43,6 +44,7 @@ export class UploadFileComponent implements OnInit, OnDestroy {
   constructor(
     private httpService: HttpService,
     private route: ActivatedRoute,
+    private router: Router,
     private storageService: StorageService,
     private contractService: ContractService,
     private cdr: ChangeDetectorRef
@@ -64,12 +66,18 @@ export class UploadFileComponent implements OnInit, OnDestroy {
     if (email) {
       this.formData.userEmail = email as string;
     }
+    const bearerToken = this.storageService.getToken();
+    const decoded: DecodedToken = jwtDecode(bearerToken);
+    const { role } = decoded;
     if (!userId && !email) {
-      const bearerToken = this.storageService.getToken();
-      const decoded: DecodedToken = jwtDecode(bearerToken);
       const { userId, email } = decoded;
       this.formData.userId = String(userId);
       this.formData.userEmail = email as string;
+    }
+    if (role == 'user') {
+      alert('You do not have Upload Access!');
+
+      this.router.navigate(['/dashboard']);
     }
     await this.getWallet();
     // this.contractService.connectAndSubscribe().subscribe(async (state: any) => {
@@ -140,25 +148,57 @@ export class UploadFileComponent implements OnInit, OnDestroy {
       next: async (data) => {
         const res = data as ApiResponse;
         this.responseFlag = true;
-        console.log('res', data);
         if (res.status == 201) {
           const response = res.result;
-          console.log('res', response);
           const inputData = {
             fileHash: response.hash,
             filePath: response.documentPath,
             fileIdentifier: response.fileIdentifier,
           };
-          this.uploadFlag = true;
-          const blockTransact = await this.contractService.uploadToBlockChain(
-            inputData,
-            this.wallet
+
+          // const blockTransact = await this.contractService.uploadToBlockChain(
+          //   inputData,
+          //   this.wallet
+          // );
+          // response.transactionId = blockTransact?.transactionHash;
+          // this.uploadResponse = response;
+
+          const docContract = await this.contractService.getDocContract(
+            this.web3
           );
+          // eslint-disable-next-line @typescript-eslint/no-this-alias
+          const self = this;
+          docContract.methods
+            .certifyFile(
+              inputData.fileHash,
+              inputData.filePath,
+              inputData.fileIdentifier
+            )
+            .send({
+              from: this.wallet,
+              value: this.web3.utils.toWei('1', 'ether'),
+            })
+            .on('receipt', function (receipt: any) {
+              // Transaction was accepted into the blockchain, let's redraw the UI
+              self.uploadFlag = true;
+              response.transactionId = receipt.transactionHash;
+              self.httpService
+                .updateFileTransactionHash(response.id, receipt.transactionHash)
+                .subscribe({
+                  next: () => {
+                    self.uploadResponse = response;
+                    self.cdr.detectChanges();
+                    console.log('receipt', self.uploadResponse);
+                  },
+                  error: () => {},
+                });
+            })
+            .on('error', function () {
+              // Do something to alert the user their transaction has failed
+              self.uploadFlag = false;
+              self.errorResponse = 'Document could not be added to Blockchain';
+            });
 
-          response.transactionId = blockTransact?.transactionHash;
-          this.uploadResponse = response;
-
-          console.log('contract response', blockTransact);
           // this.formData = {
           //   title: '',
           //   identifierId: '',
@@ -173,10 +213,15 @@ export class UploadFileComponent implements OnInit, OnDestroy {
         }
       },
       error: (error) => {
+        this.responseFlag = true;
         this.uploadFlag = false;
-        this.uploadResponse = error.error.message;
+        if (error?.error?.result) {
+          this.errorResponse = error.error.result;
+        } else {
+          this.errorResponse = error.error.message;
+        }
         this.cdr.detectChanges();
-        console.log('error msg', this.uploadResponse);
+        console.log('error msg ads', this.errorResponse);
       },
     });
   }

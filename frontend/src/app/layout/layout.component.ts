@@ -21,6 +21,7 @@ export class LayoutComponent implements OnInit {
   }
   ngOnInit(): void {
     this.storageService.currentUser.subscribe((username: string) => {
+      console.log('name', username);
       this.userName = username;
       this.cdr.detectChanges();
     });
