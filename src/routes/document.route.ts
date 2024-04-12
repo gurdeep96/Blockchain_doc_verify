@@ -82,5 +82,10 @@ DocumentRouter.post(
   authMiddleware,
   documentController.verifyFileBlockChain
 );
+DocumentRouter.get(
+  "/withdraw-wallet",
+  authMiddleware,
+  documentController.withdrawBlockChain
+);
 
 export default DocumentRouter;

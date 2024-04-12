@@ -325,6 +325,22 @@ export class DocumentService {
       throw error;
     }
   }
+
+  async withdrawBlockChain() {
+    try {
+      const web3Client = await web3Service.getWeb3Client();
+      const docContract = await web3Service.getDocContract(web3Client);
+
+      const results = await docContract.methods
+        .withdraw()
+        .send({ from: process.env.OWNER_ACCOUNT_ADDRESS });
+
+      console.log("withdraw result contract", results);
+      return results?.transactionHash;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 const documentService = new DocumentService();
 export default documentService;

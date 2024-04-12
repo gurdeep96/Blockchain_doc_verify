@@ -247,6 +247,16 @@ export class DocumentController {
       res.status(500).send(error);
     }
   }
+
+  async withdrawBlockChain(req: Request, res: Response) {
+    try {
+      const result = await documentService.withdrawBlockChain();
+      res.status(200).send({ status: 200, result });
+    } catch (error) {
+      console.log("Withdraw contract function  ERR", error);
+      res.status(500).send(error);
+    }
+  }
 }
 const documentController = new DocumentController();
 export default documentController;
