@@ -30,22 +30,6 @@ DocumentRouter.get(
   documentController.getTotalStorage
 );
 DocumentRouter.put(
-  "/assigndocument/:userId/:DocumentId",
-  authMiddleware,
-  documentController.assignDocument
-);
-DocumentRouter.put(
-  "/unassigndocument/:userId/:DocumentId",
-  authMiddleware,
-  documentController.unassignDocument
-);
-DocumentRouter.post(
-  "/createdocument/:userId",
-  authMiddleware,
-  documentController.createDocument
-);
-DocumentRouter.post("/createdocument", documentController.createDocument);
-DocumentRouter.put(
   "/updatedocument/:id",
   authMiddleware,
   documentController.updateDocuments

@@ -12,53 +12,85 @@ import {
   thirdwebIpfsUpload,
 } from "../utils/helper";
 import ipfsClient from "ipfs-http-client";
+import createHttpError from "http-errors";
+import logger from "../utils/logger";
 
 export class UserService {
   public constructor() {}
 
   async findOneUser(id: number) {
-    return await userRepo.findOne(id);
+    try {
+      const user = await userRepo.findOne(id);
+
+      logger.info(`Find one user called ${user} `, {
+        class: UserService.name,
+        function: this.findOneUser.name,
+      });
+
+      return user;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async signInUser(email: string, password: string) {
-    const user = await userRepo.findByEmail(email);
+    try {
+      const user = await userRepo.findByEmail(email);
 
-    if (!user) {
-      throw new Error("User not Found!");
-    } else if (!(await bcrypt.compare(password, user.password))) {
-      throw new Error("Invalid password!");
-    } else {
-      const tokenGen = (user: any) => {
-        return new Promise((resolve, reject) => {
-          jwt.sign(
-            { userId: user.id, role: user.role },
-            process.env.JWT_SECRET as string,
-            { expiresIn: "30m" },
-            (err, token) => {
-              if (err) {
-                reject("Error in Sign In!");
-              } else {
-                resolve(token);
+      if (!user) {
+        throw new createHttpError.Unauthorized("Invalid Credentials!");
+      } else if (!(await bcrypt.compare(password, user.password))) {
+        throw new createHttpError.Unauthorized("Invalid Credentials!");
+      } else {
+        const tokenGen = (user: any) => {
+          return new Promise((resolve, reject) => {
+            jwt.sign(
+              { userId: user.id, role: user.role },
+              process.env.JWT_SECRET as string,
+              { expiresIn: "30m" },
+              (err, token) => {
+                if (err) {
+                  reject("Error in Sign In!");
+                } else {
+                  resolve(token);
+                }
               }
-            }
-          );
+            );
+          });
+        };
+        const token = await tokenGen(user);
+        logger.info(`Signed in user ${user.firstName}`, {
+          class: UserService.name,
+          function: this.signInUser.name,
         });
-      };
-      const token = await tokenGen(user);
-      return { token: token, username: user.firstName };
+
+        return { token: token, username: user.firstName };
+      }
+    } catch (error) {
+      logger.error(`Sign in error ${error}`, {
+        class: UserService.name,
+        function: this.signInUser.name,
+      });
+      throw error;
     }
   }
 
   async findAllUser() {
-    return await userRepo.findAll();
+    try {
+      const allUsers = await userRepo.findAll();
+
+      return allUsers;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async createUser(user: IUserInput) {
     if (!user.email) {
-      throw new Error("Email Required!");
+      throw new createHttpError.BadRequest("Email Required!");
     }
     if (!user.password) {
-      throw new Error("Password Required!");
+      throw new createHttpError.BadRequest("Password Required!");
     }
     const pass = await bcrypt.hash(user.password, 8);
     const createOne = {
@@ -70,7 +102,7 @@ export class UserService {
     };
     const userEmail = await userRepo.findByEmail(user.email);
     if (userEmail) {
-      throw new Error("Email already exist");
+      throw new createHttpError.BadRequest("Email already exist");
     }
     return await userRepo.createUser(createOne);
   }

@@ -6,6 +6,11 @@ import { BehaviorSubject } from 'rxjs';
 
 const USER_KEY = 'auth-token';
 
+interface UserData {
+  id: number;
+  email: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -13,6 +18,13 @@ export class StorageService {
   private currentUserSubject: BehaviorSubject<string> =
     new BehaviorSubject<string>('');
   currentUser = this.currentUserSubject.asObservable();
+
+  private userDataSubject = new BehaviorSubject<UserData | null>(null);
+  userData = this.userDataSubject.asObservable();
+
+  public uploadId: any;
+  public uploadEmail: string = '';
+
   constructor(private router: Router) {}
 
   clean(): void {
@@ -22,6 +34,26 @@ export class StorageService {
   public saveToken(token: string): void {
     window.sessionStorage.removeItem(USER_KEY);
     window.sessionStorage.setItem(USER_KEY, token);
+  }
+
+  setUserData(id: number, email: string) {
+    this.userDataSubject.next({ id, email });
+  }
+
+  public setUploadId(id: number) {
+    this.uploadId = id;
+  }
+
+  public setUploadEmail(email: string) {
+    this.uploadEmail = email;
+  }
+
+  public getUploadUserId() {
+    return this.uploadId;
+  }
+
+  public getUploadUserEmail() {
+    return this.uploadEmail;
   }
 
   public getToken(): any {

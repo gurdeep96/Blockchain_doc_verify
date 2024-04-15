@@ -55,10 +55,13 @@ export class DocumentRepository {
     return await Document.findOne({
       where: { hash: hash },
       attributes: [
+        "id",
         "title",
         "documentPath",
         "hash",
+        "transactionId",
         "issuer",
+        "userId",
         "fileIdentifier",
         "fileSizeMB",
         "createdAt",
@@ -174,7 +177,6 @@ export class DocumentRepository {
   }
 
   async updateTxIdByDocId(id: number, txId: string) {
-    console.log(id, txId);
     return await Document.update(
       {
         transactionId: txId,

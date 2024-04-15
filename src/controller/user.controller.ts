@@ -24,8 +24,9 @@ export class UserController {
         username: response.username,
       });
     } catch (error: any) {
-      console.log(error);
-      res.status(500).send({ status: 500, error: error.message });
+      res
+        .status(error.status || 500)
+        .send({ status: error.status, error: error.message });
     }
   }
 
@@ -34,8 +35,10 @@ export class UserController {
       console.log("GET USERS called", Date.now());
       const response = await userService.findAllUser();
       res.status(200).send({ status: 200, result: response });
-    } catch (error) {
-      res.status(500).json({ error });
+    } catch (error: any) {
+      res
+        .status(error.status || 500)
+        .send({ status: error.status, error: error.message });
     }
   }
 
@@ -72,7 +75,9 @@ export class UserController {
       });
     } catch (error: any) {
       console.log(error);
-      res.status(500).send({ status: 500, result: error.message });
+      res
+        .status(error.status || 500)
+        .send({ status: error.status, error: error.message });
     }
   }
 }

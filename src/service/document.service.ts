@@ -13,21 +13,56 @@ import {
 import * as fs from "fs";
 import web3Service from "../utils/web3";
 import * as fsPromise from "fs/promises";
+import logger from "../utils/logger";
+import createHttpError, { CreateHttpError } from "http-errors";
 
 export class DocumentService {
   private ipfs: any;
   public constructor() {}
 
   async findOneDocument(id: number) {
-    return await documentRepo.findOne(id);
+    try {
+      const result = await documentRepo.findOne(id);
+      logger.info(`Find one document result for ${id} : ${result}`, {
+        class: DocumentService.name,
+        function: this.findOneDocument.name,
+      });
+      return result;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async findOneByPath(path: string) {
-    return await documentRepo.findByPath(path);
+    try {
+      const result = await documentRepo.findByPath(path);
+      logger.info(
+        `Find one document result with document path ${path} : ${result}`,
+        {
+          class: DocumentService.name,
+          function: this.findOneByPath.name,
+        }
+      );
+      return result;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async findOneByHash(hash: string) {
-    return await documentRepo.findByHash(hash);
+    try {
+      const result = await documentRepo.findByHash(hash);
+      logger.info(
+        `Find one document result for hash value ${hash} : ${result}`,
+        {
+          class: DocumentService.name,
+          function: this.findOneByHash.name,
+        }
+      );
+      return result;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async getFilesStorageSize(): Promise<IStorageSum[]> {
@@ -35,46 +70,103 @@ export class DocumentService {
   }
 
   async findOneByFileIdentifier(fileIdentifier: string) {
-    return await documentRepo.findByFileIdentifier(fileIdentifier);
+    try {
+      const result = await documentRepo.findByFileIdentifier(fileIdentifier);
+      logger.info(
+        `Find one document result for identifier ${fileIdentifier} : ${result}`,
+        {
+          class: DocumentService.name,
+          function: this.findOneDocument.name,
+        }
+      );
+      return result;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async findDocumentsByUser(userId: number) {
     try {
+      if (!userId) {
+        throw new createHttpError.BadRequest("User input required!");
+      }
       const user = await userRepo.findOne(userId);
       if (!user) {
-        throw new Error("User not found!");
+        throw new createHttpError.NotFound("User not found!");
       }
       const { count, rows } = await documentRepo.findDocsByUser(userId);
+
+      logger.info(`Count of documents for user id ${userId} is ${count}`, {
+        class: DocumentService.name,
+        function: this.findDocumentsByUser.name,
+      });
+
       return { username: user.firstName, documents: rows, count: count };
-    } catch (error) {
+    } catch (error: unknown) {
+      logger.error(`Error in find docs by a user ${error}`, {
+        class: DocumentService.name,
+        function: this.findDocumentsByUser.name,
+      });
       throw error;
     }
   }
 
   async searchDocumentsFilterByUser(userId: number, value: string) {
     try {
+      if (!userId || !value) {
+        throw new createHttpError.BadRequest("Input needed!");
+      }
       const user = await userRepo.findOne(userId);
       if (!user) {
-        throw new Error("User not found!");
+        throw new createHttpError.NotFound("User not found!");
       }
       const { count, rows } = await documentRepo.searchDocFilterByUser(
         userId,
         value
       );
+
+      logger.info(
+        `Count of documents for user id ${userId} with search Term '${value}' is ${count}`,
+        {
+          class: DocumentService.name,
+          function: this.searchDocumentsFilterByUser.name,
+        }
+      );
+
       return { count, response: rows };
     } catch (error) {
+      logger.error(`Error in filter docs by a user ${error}`, {
+        class: DocumentService.name,
+        function: this.searchDocumentsFilterByUser.name,
+      });
       throw error;
     }
   }
 
   async findUserByDocument(path: string) {
     try {
+      if (!path) {
+        throw new createHttpError.BadRequest("Path is required!");
+      }
       const document = await documentRepo.findUserByDoc(path);
       if (!document) {
-        throw new Error("Document not found for given User!");
+        throw new createHttpError.NotFound(
+          "Document not found for given User!"
+        );
       }
+
+      logger.info(`Document found ${document}`, {
+        class: DocumentService.name,
+        function: this.findUserByDocument.name,
+      });
+
       return document;
     } catch (error) {
+      logger.error(`Error in filter docs by a user ${error}`, {
+        class: DocumentService.name,
+        function: this.findUserByDocument.name,
+      });
+
       throw error;
     }
   }
@@ -88,7 +180,26 @@ export class DocumentService {
   }
 
   async updateTxIdByDocId(id: number, txId: string) {
-    return await documentRepo.updateTxIdByDocId(id, txId);
+    try {
+      if (!id || !txId) {
+        throw new createHttpError.BadRequest("Invalid input data");
+      }
+      logger.info(
+        `Document Trasaction Hash ${txId} update called for Document Id ${id}`,
+        {
+          class: DocumentService.name,
+          function: this.updateTxIdByDocId.name,
+        }
+      );
+
+      return await documentRepo.updateTxIdByDocId(id, txId);
+    } catch (error) {
+      logger.error(`Error in filter docs by a user ${error}`, {
+        class: DocumentService.name,
+        function: this.updateTxIdByDocId.name,
+      });
+      throw error;
+    }
   }
 
   async updateDocument(id: number, Document: any) {
@@ -104,39 +215,17 @@ export class DocumentService {
     return await documentRepo.deleteDocument(id);
   }
 
-  async assignDocument(DocumentId: string, userId: string) {
-    const Document = await documentRepo.findOne(Number(DocumentId));
-    if (!Document) {
-      throw new Error("Document doesnt exists!");
-    }
-    if (Document.userId !== null) {
-      throw new Error("Already assigned Document");
-    }
-    return await documentRepo.assignDocument(
-      Number(DocumentId),
-      Number(userId)
-    );
-  }
-
-  async unassignDocument(DocumentId: string, userId: string) {
-    const Document = await documentRepo.findOne(Number(DocumentId));
-    if (!Document) {
-      throw new Error("Document doesnt exists!");
-    }
-    if (Document.userId == null) {
-      throw new Error("Already unassigned Document");
-    }
-    return await documentRepo.unassignDocument(
-      Number(DocumentId),
-      Number(userId)
-    );
-  }
-
   async getFile(docId: string) {
     try {
+      if (!docId) {
+        throw new createHttpError.BadRequest("No Hash for File Passed!");
+      }
+
       const doc = await documentRepo.findByPath(docId);
       if (!doc) {
-        throw new Error("Document not Found");
+        throw new createHttpError.NotFound(
+          `Document with path CID id ${docId} not Found`
+        );
       }
 
       const response = await fetch(
@@ -147,12 +236,27 @@ export class DocumentService {
       );
 
       if (!response.ok) {
-        throw new Error(`File not found on IPFS for hash`);
+        throw new createHttpError.NotFound(
+          `File not found on IPFS for hash ${docId}`
+        );
       }
       const res = await documentService.findOneByPath(docId);
       const contentType = res?.mimeType as string;
+
+      logger.info(
+        `Returning Decrypted file with path Cid ${docId} from IPFS storage`,
+        {
+          class: DocumentService.name,
+          function: this.getFile.name,
+        }
+      );
+
       return { contentType, response };
     } catch (error) {
+      logger.error(`Error in fetching ${docId} file from IPFS : ${error}`, {
+        class: DocumentService.name,
+        function: this.getFile.name,
+      });
       throw error;
     }
   }
@@ -163,8 +267,11 @@ export class DocumentService {
     body: any
   ) {
     try {
+      if (!userId) {
+        throw new createHttpError.BadRequest("user id is missing!");
+      }
       if (!file) {
-        throw new Error("File is Required!");
+        throw new createHttpError.BadRequest("Uploaded File is Required!");
       }
       if (!this.ipfs) {
         this.ipfs = await thirdwebIpfsCreate();
@@ -177,7 +284,22 @@ export class DocumentService {
       const hashDB = await this.findOneByHash(hashed);
 
       if (hashDB) {
-        throw new Error("File Already Present!");
+        if (hashDB.transactionId) {
+          throw new createHttpError.BadRequest("Document Already Present!");
+        } else if (hashDB.userId == userId) {
+          logger.info(
+            `Already peresent Document in Db with no transaction Hash , so retrying`,
+            {
+              class: DocumentService.name,
+              function: this.fileUploadIpfs.name,
+            }
+          );
+          return hashDB;
+        } else {
+          throw new createHttpError.BadRequest(
+            "Document Already Present and with a different User Id!"
+          );
+        }
       }
       const keys = await keyGen(process.env.ENCRY_KEY as string);
       const fileSave = await ipfsUploadEncryptedFile(
@@ -206,8 +328,24 @@ export class DocumentService {
       create.fileName = file?.originalname;
 
       const result = await documentRepo.createDocument(create, userId);
+
+      logger.info(
+        `Successfully uploaded new Document for user id ${userId} with sha hash ${create.hashed}`,
+        {
+          class: DocumentService.name,
+          function: this.fileUploadIpfs.name,
+        }
+      );
+
       return result;
     } catch (error) {
+      logger.error(
+        `Error in uploading file for user with id ${userId} : ${error}`,
+        {
+          class: DocumentService.name,
+          function: this.fileUploadIpfs.name,
+        }
+      );
       throw error;
     }
   }
@@ -276,8 +414,24 @@ export class DocumentService {
       console.log("TX BLOCKCHAIN", blockChainResult);
 
       const result = await documentRepo.createDocument(create, userId);
+
+      logger.info(
+        `Successfully uploaded new Document for user id ${userId} with sha hash ${create.hashed}`,
+        {
+          class: DocumentService.name,
+          function: this.fileUploadIpfs.name,
+        }
+      );
+
       return result;
     } catch (error) {
+      logger.error(
+        `Error in uploading file for user with id ${userId} : ${error}`,
+        {
+          class: DocumentService.name,
+          function: this.fileUpload.name,
+        }
+      );
       throw error;
     }
   }
@@ -301,6 +455,9 @@ export class DocumentService {
 
   async verifyFileBlockChain(value: string, option: string) {
     try {
+      if (!value) {
+        throw new createHttpError.BadRequest("No Value provided!");
+      }
       const web3Client = await web3Service.getWeb3Client();
       const docContract = await web3Service.getDocContract(web3Client);
       let results = false;
@@ -319,9 +476,24 @@ export class DocumentService {
       } else {
         results = await docContract.methods.verifyFileHash(value).call();
       }
-      console.log("verify call result contract", results);
+
+      logger.info(
+        `Result for Verifying document presence in blockchain for ${value} is : ${results}`,
+        {
+          class: DocumentService.name,
+          function: this.verifyFileBlockChain.name,
+        }
+      );
+
       return results;
     } catch (error) {
+      logger.error(
+        `Error in verifying document ${value} on Blockchain network : ${error}`,
+        {
+          class: DocumentService.name,
+          function: this.verifyFileBlockChain.name,
+        }
+      );
       throw error;
     }
   }
@@ -335,9 +507,20 @@ export class DocumentService {
         .withdraw()
         .send({ from: process.env.OWNER_ACCOUNT_ADDRESS });
 
-      console.log("withdraw result contract", results);
+      logger.info(
+        `Successfully Withdrawn currency fom contract to owner's account`,
+        {
+          class: DocumentService.name,
+          function: this.withdrawBlockChain.name,
+        }
+      );
+
       return results?.transactionHash;
     } catch (error) {
+      logger.error(`Error in Withdrawing tokens into owner's account`, {
+        class: DocumentService.name,
+        function: this.withdrawBlockChain.name,
+      });
       throw error;
     }
   }

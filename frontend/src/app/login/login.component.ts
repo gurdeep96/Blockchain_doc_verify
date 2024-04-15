@@ -64,8 +64,8 @@ export class LoginComponent implements OnInit {
         this.roles = this.storageService.getRole();
       },
       error: (error) => {
-        console.log(error.error);
-        this.errorMessage = 'Invalid Credentials';
+        console.log('hey err', error.error);
+        this.errorMessage = error.error.error;
         this.isLoginFailed = true;
       },
     });

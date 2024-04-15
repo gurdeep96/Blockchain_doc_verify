@@ -37,6 +37,8 @@ export class UploadFileComponent implements OnInit, OnDestroy {
   public errorWallet: string = '';
   public errorResponse: string = '';
   public userFlag: boolean = false;
+  public userId: number = -1;
+  public email: string = '';
   accountSubscription: Subscription | undefined;
   walletBalance: number = 0;
   web3: any;
@@ -58,18 +60,28 @@ export class UploadFileComponent implements OnInit, OnDestroy {
   };
 
   async ngOnInit() {
-    const userId = this.route.snapshot.paramMap.get('id');
-    const email = this.route.snapshot.paramMap.get('email');
-    if (userId) {
-      this.formData.userId = userId as string;
+    this.userId = Number(this.route.snapshot.paramMap.get('id'));
+    this.email = this.route.snapshot.paramMap.get('email') as string;
+    //const userId = this.storageService.getUploadUserId();
+    //const email = this.storageService.getUploadUserEmail();
+    // this.storageService.userData.subscribe((userData) => {
+    //   console.log('user', userData);
+    //   if (userData) {
+    //     this.userId = userData.id;
+    //     this.email = userData.email;
+    //   }
+    // });
+    console.log(this.userId, this.email);
+    if (this.userId) {
+      this.formData.userId = String(this.userId);
     }
-    if (email) {
-      this.formData.userEmail = email as string;
+    if (this.email) {
+      this.formData.userEmail = this.email;
     }
     const bearerToken = this.storageService.getToken();
     const decoded: DecodedToken = jwtDecode(bearerToken);
     const { role } = decoded;
-    if (!userId && !email) {
+    if (this.userId == -1 && !this.email) {
       const { userId, email } = decoded;
       this.formData.userId = String(userId);
       this.formData.userEmail = email as string;
@@ -140,7 +152,7 @@ export class UploadFileComponent implements OnInit, OnDestroy {
 
   submit() {
     const form = new FormData();
-
+    this.responseFlag = false;
     form.append('title', this.formData.title);
     form.append('identifierId', this.formData.identifierId);
     form.append('file', this.formData.file as File);
@@ -193,10 +205,12 @@ export class UploadFileComponent implements OnInit, OnDestroy {
                   error: () => {},
                 });
             })
-            .on('error', function () {
+            .on('error', function (error: any) {
               // Do something to alert the user their transaction has failed
+              console.log('failed wallet tx', error);
               self.uploadFlag = false;
               self.errorResponse = 'Document could not be added to Blockchain';
+              self.cdr.detectChanges();
             });
 
           // this.formData = {
@@ -218,10 +232,9 @@ export class UploadFileComponent implements OnInit, OnDestroy {
         if (error?.error?.result) {
           this.errorResponse = error.error.result;
         } else {
-          this.errorResponse = error.error.message;
+          this.errorResponse = error.error.error;
         }
         this.cdr.detectChanges();
-        console.log('error msg ads', this.errorResponse);
       },
     });
   }
