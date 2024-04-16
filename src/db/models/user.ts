@@ -60,6 +60,12 @@ class User extends Model {
   })
   active?: string;
 
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  accountAddress?: string;
+
   @HasMany(() => Document)
   documents!: Document[];
 }

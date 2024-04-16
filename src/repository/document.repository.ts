@@ -45,6 +45,7 @@ export class DocumentRepository {
         "fileIdentifier",
         "fileSizeMB",
         "mimeType",
+        "expiryDate",
         "createdAt",
         "updatedAt",
       ],
@@ -64,6 +65,7 @@ export class DocumentRepository {
         "userId",
         "fileIdentifier",
         "fileSizeMB",
+        "expiryDate",
         "createdAt",
         "updatedAt",
       ],
@@ -82,6 +84,7 @@ export class DocumentRepository {
         "issuer",
         "fileIdentifier",
         "fileSizeMB",
+        "expiryDate",
         "createdAt",
         "updatedAt",
       ],
@@ -119,6 +122,11 @@ export class DocumentRepository {
             `%${searchTerm.toLowerCase()}%`
           ),
           Sequelize.where(
+            Sequelize.fn("LOWER", Sequelize.col("expiryDate")),
+            "LIKE",
+            `%${searchTerm.toLowerCase()}%`
+          ),
+          Sequelize.where(
             Sequelize.fn("LOWER", Sequelize.col("fileName")),
             "LIKE",
             `%${searchTerm.toLowerCase()}%`
@@ -144,6 +152,7 @@ export class DocumentRepository {
         "issuer",
         "fileIdentifier",
         "fileSizeMB",
+        "expiryDate",
         "createdAt",
         "updatedAt",
       ],
@@ -173,6 +182,7 @@ export class DocumentRepository {
       extension: body.extension,
       fileIdentifier: body.fileIdentifier,
       mimeType: body.mimeType,
+      expiryDate: body.expiryDate,
     });
   }
 

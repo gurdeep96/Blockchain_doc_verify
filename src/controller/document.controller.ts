@@ -195,8 +195,9 @@ export class DocumentController {
     try {
       const { hash, option } = req.body;
 
-      const result = await documentService.verifyFileBlockChain(hash, option);
-      res.status(200).send({ status: 200, result });
+      const { expiryDate, results } =
+        await documentService.verifyFileBlockChain(hash, option);
+      res.status(200).send({ status: 200, result: results, expiryDate });
     } catch (error: any) {
       res
         .status(error.status || 500)

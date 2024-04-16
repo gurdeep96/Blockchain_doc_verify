@@ -83,6 +83,12 @@ class Document extends Model {
   })
   issuer?: string;
 
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  expiryDate?: Date;
+
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,

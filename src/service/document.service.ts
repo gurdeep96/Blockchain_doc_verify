@@ -326,6 +326,10 @@ export class DocumentService {
       create.fileIdentifier = identifierId;
       create.mimeType = mimeType;
       create.fileName = file?.originalname;
+      if (body.expiryDate != null) {
+        create.expiryDate = new Date(body.expiryDate);
+        console.log(create.expiryDate);
+      }
 
       const result = await documentRepo.createDocument(create, userId);
 
@@ -336,7 +340,6 @@ export class DocumentService {
           function: this.fileUploadIpfs.name,
         }
       );
-
       return result;
     } catch (error) {
       logger.error(
@@ -461,19 +464,22 @@ export class DocumentService {
       const web3Client = await web3Service.getWeb3Client();
       const docContract = await web3Service.getDocContract(web3Client);
       let results = false;
+      let expiryDate;
       if (option == "transactionHash") {
         const res = await documentRepo.findByTxHash(value);
         if (res?.hash) {
-          console.log("trasnaction hash", res.hash);
+          expiryDate = res.expiryDate;
           results = await docContract.methods.verifyFileHash(res.hash).call();
         }
       } else if (option == "fileIdentifier") {
         const res = await documentRepo.findByFileIdentifier(value);
         if (res?.hash) {
-          console.log("file iden", res.hash);
+          expiryDate = res.expiryDate;
           results = await docContract.methods.verifyFileHash(res.hash).call();
         }
       } else {
+        const res = await documentRepo.findByHash(value);
+        expiryDate = res?.expiryDate;
         results = await docContract.methods.verifyFileHash(value).call();
       }
 
@@ -485,7 +491,7 @@ export class DocumentService {
         }
       );
 
-      return results;
+      return { results, expiryDate };
     } catch (error) {
       logger.error(
         `Error in verifying document ${value} on Blockchain network : ${error}`,

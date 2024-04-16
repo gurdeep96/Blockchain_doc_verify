@@ -29,6 +29,10 @@ export class UserService {
 
       return user;
     } catch (error) {
+      logger.error(`Error in find user by id : ${id}`, {
+        class: UserService.name,
+        function: this.findOneUser.name,
+      });
       throw error;
     }
   }
@@ -78,33 +82,56 @@ export class UserService {
   async findAllUser() {
     try {
       const allUsers = await userRepo.findAll();
-
+      logger.info(`Find all users , length : ${allUsers.length}`, {
+        class: UserService.name,
+        function: this.findAllUser.name,
+      });
       return allUsers;
     } catch (error) {
+      logger.error(`Error in find all users : ${error}`, {
+        class: UserService.name,
+        function: this.findAllUser.name,
+      });
+
       throw error;
     }
   }
 
   async createUser(user: IUserInput) {
-    if (!user.email) {
-      throw new createHttpError.BadRequest("Email Required!");
+    try {
+      if (!user.email) {
+        throw new createHttpError.BadRequest("Email Required!");
+      }
+      if (!user.password) {
+        throw new createHttpError.BadRequest("Password Required!");
+      }
+      const pass = await bcrypt.hash(user.password, 8);
+      const createOne = {
+        firstName: user.firstname,
+        lastName: user.lastname,
+        email: user.email,
+        password: pass,
+        role: user.role ? user.role : undefined,
+      };
+      const userEmail = await userRepo.findByEmail(user.email);
+      if (userEmail) {
+        throw new createHttpError.BadRequest("Email already exist");
+      }
+
+      logger.info(`Created new user with email : ${user?.email}`, {
+        class: UserService.name,
+        function: this.createUser.name,
+      });
+
+      return await userRepo.createUser(createOne);
+    } catch (error) {
+      logger.error(`Error creating new user with email : ${user?.email}`, {
+        class: UserService.name,
+        function: this.createUser.name,
+      });
+
+      throw error;
     }
-    if (!user.password) {
-      throw new createHttpError.BadRequest("Password Required!");
-    }
-    const pass = await bcrypt.hash(user.password, 8);
-    const createOne = {
-      firstName: user.firstname,
-      lastName: user.lastname,
-      email: user.email,
-      password: pass,
-      role: user.role ? user.role : undefined,
-    };
-    const userEmail = await userRepo.findByEmail(user.email);
-    if (userEmail) {
-      throw new createHttpError.BadRequest("Email already exist");
-    }
-    return await userRepo.createUser(createOne);
   }
 
   async updateUser(id: number, user: IUserInput) {

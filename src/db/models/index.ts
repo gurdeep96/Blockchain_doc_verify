@@ -4,6 +4,7 @@ import * as Sequelize from "sequelize-typescript";
 import Document from "./document";
 import User from "./user";
 // import { sequelize } from "../db/connection";
+
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || "development";
 const config = require(path.join(__dirname + "/../config/config.js"))[env];
@@ -21,7 +22,18 @@ if (config.use_env_variable) {
     config.database,
     config.username,
     config.password,
-    config
+    {
+      dialect: config.dialect,
+      logging: true,
+      host: config.host,
+
+      pool: {
+        max: 50,
+        min: 0,
+        acquire: 30000,
+        idle: 10000,
+      },
+    }
   );
 }
 sequelize.addModels([User, Document]);
@@ -35,12 +47,22 @@ fs.readdirSync(__dirname)
       file.indexOf(".test.js") === -1
   )
   .forEach(async (file) => {
-    const model = (await import(path.join(__dirname, file))).default;
-    db[model.name] = model;
-    models.push(model);
-    //model.init(db.sequelize); // Initialize the model with the Sequelize instance
-    if (db[model.name].associate) {
-      db[model.name].associate(db);
+    try {
+      const model = (await import(path.join(__dirname, file))).default;
+      db[model.name] = model;
+      models.push(model);
+      //model.init(db.sequelize); // Initialize the model with the Sequelize instance
+      if (db[model.name].associate) {
+        db[model.name].associate(db);
+      }
+    } catch (error: any) {
+      if (error instanceof Error && error.name === "SequelizeConnectionError") {
+        console.error("Error connecting to database:", error);
+        // Throw a custom error or return an error object here
+        throw new Error("Invalid database credentials provided!");
+      } else {
+        console.error(`Error importing/associating model ${file}`, error);
+      }
     }
   });
 

@@ -19,6 +19,7 @@ export interface IUserResponse {
   firstname: string;
   lastname: string;
   email: string;
+  accountAddress?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -32,7 +32,6 @@ export class UserController {
 
   async getUsers(req: Request, res: Response) {
     try {
-      console.log("GET USERS called", Date.now());
       const response = await userService.findAllUser();
       res.status(200).send({ status: 200, result: response });
     } catch (error: any) {
