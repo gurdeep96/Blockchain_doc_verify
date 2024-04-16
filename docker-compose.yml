@@ -1,0 +1,46 @@
+version: "3.8"
+services:
+  app:
+    build:
+      context: .
+    container_name: backend
+    image: docvify
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    image: angular_app
+    volumes:
+      - ./frontend:/usr/src/app/frontend
+    restart: always
+    ports:
+      - "8000:80"
+
+  # mysql:
+  #   image: mariadb:10.1.19
+  #   ports:
+  #     - 3307:3306
+  #   volumes:
+  #     - ./mysql:/var/lib/mysql
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: password
+#   postgres:
+#     image: postgres:latest
+#     container_name: db_postgres
+#     restart: always
+#     # environment:
+#     #   POSTGRES_USER: your_username
+#     #   POSTGRES_PASSWORD: your_password
+#     #   POSTGRES_DB: your_database_name
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgres
+
+# volumes:
+#   postgres_data:
