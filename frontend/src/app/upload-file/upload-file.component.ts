@@ -1,3 +1,4 @@
+/* eslint-disable @angular-eslint/no-input-rename */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
@@ -9,12 +10,12 @@ import { jwtDecode } from 'jwt-decode';
 import { ContractService } from '../contract.service';
 import { Subscription } from 'rxjs';
 
-interface ApiResponse {
+export interface ApiResponse {
   result: any;
   status: number;
 }
 
-interface DecodedToken {
+export interface DecodedToken {
   userId: number;
   email: string;
   role: string;
@@ -56,21 +57,14 @@ export class UploadFileComponent implements OnInit, OnDestroy {
     identifierId: '',
     userId: '',
     userEmail: '',
+    expiryDate: null as Date | null,
     file: null as File | null, // Used to hold the selected file
   };
 
   async ngOnInit() {
     this.userId = Number(this.route.snapshot.paramMap.get('id'));
     this.email = this.route.snapshot.paramMap.get('email') as string;
-    //const userId = this.storageService.getUploadUserId();
-    //const email = this.storageService.getUploadUserEmail();
-    // this.storageService.userData.subscribe((userData) => {
-    //   console.log('user', userData);
-    //   if (userData) {
-    //     this.userId = userData.id;
-    //     this.email = userData.email;
-    //   }
-    // });
+
     console.log(this.userId, this.email);
     if (this.userId) {
       this.formData.userId = String(this.userId);
@@ -81,7 +75,7 @@ export class UploadFileComponent implements OnInit, OnDestroy {
     const bearerToken = this.storageService.getToken();
     const decoded: DecodedToken = jwtDecode(bearerToken);
     const { role } = decoded;
-    if (this.userId == -1 && !this.email) {
+    if ((this.userId == -1 || this.userId == 0) && !this.email) {
       const { userId, email } = decoded;
       this.formData.userId = String(userId);
       this.formData.userEmail = email as string;
@@ -155,6 +149,7 @@ export class UploadFileComponent implements OnInit, OnDestroy {
     this.responseFlag = false;
     form.append('title', this.formData.title);
     form.append('identifierId', this.formData.identifierId);
+    form.append('expiryDate', this.formData.expiryDate as any);
     form.append('file', this.formData.file as File);
     this.httpService.uploadFileIpfs(form, this.formData.userId).subscribe({
       next: async (data) => {
@@ -245,6 +240,7 @@ export class UploadFileComponent implements OnInit, OnDestroy {
     form.append('title', this.formData.title);
     form.append('identifierId', this.formData.identifierId);
     form.append('file', this.formData.file as File);
+    form.append('expiryDate', this.formData.expiryDate as any);
     form.append('accountAddress', this.wallet);
     this.httpService.uploadFile(form, this.formData.userId).subscribe({
       next: (data) => {
@@ -258,6 +254,7 @@ export class UploadFileComponent implements OnInit, OnDestroy {
             identifierId: '',
             userId: '',
             userEmail: '',
+            expiryDate: null,
             file: null as File | null,
           };
         } else {

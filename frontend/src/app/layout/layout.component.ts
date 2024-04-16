@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { StorageService } from '../storage.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   providers: [StorageService],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css',
@@ -30,4 +31,8 @@ export class LayoutComponent implements OnInit {
   logOut() {
     this.storageService.logout();
   }
+
+  // ngOnDestroy() {
+  //   this.storageService.currentUser.subscribe();
+  // }
 }

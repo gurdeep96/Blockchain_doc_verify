@@ -63,6 +63,12 @@
                 {{ responseMessage }}
               </div>
             </div>
+            <div
+              [ngClass]="expClass"
+              *ngIf="f.submitted && verifiedFlag && showExp"
+            >
+              <div>Expiry Date : {{ expiryDate }}</div>
+            </div>
             <div class="form-group" *ngIf="f.submitted && !verifiedFlag">
               <div class="alert alert-danger" role="alert">
                 {{ errorMessage }}

@@ -9,5 +9,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     //{ provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
+    //{ provide: LocationStrategy, useClass: HashLocationStrategy },
   ],
 };
