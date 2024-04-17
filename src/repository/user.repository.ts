@@ -20,9 +20,16 @@ export class UserRepository {
   async findAll() {
     return await User.findAll({
       where: { active: true },
-      attributes: {
-        include: ["id", "firstName", "lastName", "email", "accountAddress"],
-      },
+      attributes: [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "accountAddress",
+        "role",
+        "createdAt",
+      ],
+
       // include: {
       //   model: Document,
       //   attributes: [

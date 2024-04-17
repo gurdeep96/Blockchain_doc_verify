@@ -58,7 +58,7 @@ export class UploadFileComponent implements OnInit, OnDestroy {
     userId: '',
     userEmail: '',
     expiryDate: null as Date | null,
-    file: null as File | null, // Used to hold the selected file
+    file: null as File | null,
   };
 
   async ngOnInit() {

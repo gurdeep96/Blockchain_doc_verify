@@ -1,0 +1,17 @@
+NODE_ENV=development
+PORT=3000
+JWT_SECRET=randomstringforjwtsigning
+DB_NAME=root
+DB_PASSWORD=password
+DB_SCHEMA=document_verify
+DB_HOST=host.docker.internal
+ENCRY_ALGO=aes-256-cbc
+BLOCKCHAIN_URL=http://host.docker.internal:9545
+ENCRY_KEY=randombigstringtoencryptdatatoipfsstoragerandombigstringtoencryptdatatoipfsstorage
+ENCRY_IV=7b3eaeef7c89a0e2d8a1a8346b9de07f
+CONTRACT_ADDRESS=0x406909C08C269f9a96A3A7929B062f26F0a8BbB3
+THIRD_WEB_CLIENTID=7d9cbfe5d6e336654f9340fca0afb0a9
+THIRD_WEB_SECRETKEY=V3YlkeVPxtKHmtoWWnzZUn0Psoi5Jmu17azaaCstSsH6o8Deo9dvT-SfwxqqaKyHShQtfwwjVvFu490xjmLfMA
+
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres

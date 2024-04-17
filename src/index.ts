@@ -22,7 +22,11 @@ function errorHandler(
 }
 
 const corsOptions = {
-  origin: ["http://localhost:4200", "http://127.0.0.1:8080"],
+  origin: [
+    "http://localhost:4200",
+    "http://127.0.0.1:8080",
+    "http://127.0.0.1:8000",
+  ],
   credentials: true,
   maxAge: 86400,
 };

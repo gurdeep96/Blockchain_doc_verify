@@ -326,7 +326,7 @@ export class DocumentService {
       create.fileIdentifier = identifierId;
       create.mimeType = mimeType;
       create.fileName = file?.originalname;
-      if (body.expiryDate != null) {
+      if (body.expiryDate != null && body.expiryDate != "null") {
         create.expiryDate = new Date(body.expiryDate);
         console.log(create.expiryDate);
       }

@@ -5,12 +5,13 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
+import { LayoutComponent } from '../layout/layout.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [FormsModule, CommonModule],
-  providers: [AuthService, StorageService],
+  providers: [AuthService, StorageService, LayoutComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
@@ -31,13 +32,15 @@ export class LoginComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private storageService: StorageService,
-    private router: Router
+    private router: Router,
+    private layoutComponent: LayoutComponent
   ) {}
 
   ngOnInit(): void {
     if (this.storageService.isLoggedIn()) {
       this.isLoggedIn = true;
       this.roles = this.storageService.getRole();
+      this.router.navigate(['dashboard']);
     }
   }
 
@@ -59,6 +62,7 @@ export class LoginComponent implements OnInit {
         this.isLoginFailed = false;
         this.username = data.username;
         this.storageService.setUsername(data.username);
+        this.layoutComponent.login();
         this.router.navigate(['/dashboard']);
 
         this.roles = this.storageService.getRole();

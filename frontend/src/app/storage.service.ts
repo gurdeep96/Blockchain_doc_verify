@@ -101,11 +101,17 @@ export class StorageService {
   logout(): void {
     window.sessionStorage.removeItem(USER_KEY);
     this.clean();
+    this.currentUserSubject.next('');
     this.router.navigate(['/login']);
   }
 
   public setUsername(username: string) {
     this.currentUserSubject.next(username);
+  }
+
+  public getLoggedInUsername(): string | null {
+    const user = this.currentUserSubject.getValue();
+    return user ? user : null;
   }
 
   public isTokenExpired(): boolean {

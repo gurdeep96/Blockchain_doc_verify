@@ -9,6 +9,21 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
+      - NODE_ENV=${NODE_ENV}
+      - JWT_SECRET=${JWT_SECRET}
+      - DB_NAME=${DB_NAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_SCHEMA=${DB_SCHEMA}
+      - DB_HOST=host.docker.internal
+      - ENCRY_ALGO=${ENCRY_ALGO}
+      - BLOCKCHAIN_URL=http://host.docker.internal:9545
+      - ENCRY_KEY=${ENCRY_KEY}
+      - ENCRY_IV=${ENCRY_IV}
+      - CONTRACT_ADDRESS=${CONTRACT_ADDRESS}
+      - THIRD_WEB_CLIENTID=${THIRD_WEB_CLIENTID}
+      - THIRD_WEB_SECRETKEY=${THIRD_WEB_SECRETKEY}
+    networks:
+      - docvify-network
 
   frontend:
     build:
@@ -20,7 +35,12 @@ services:
     restart: always
     ports:
       - "8000:80"
+    networks:
+      - docvify-network
 
+networks:
+  docvify-network:
+    driver: bridge
   # mysql:
   #   image: mariadb:10.1.19
   #   ports:

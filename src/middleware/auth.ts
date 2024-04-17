@@ -46,7 +46,7 @@ export const adminAuthorize = (
   next: NextFunction
 ) => {
   const user = res.locals.user as any;
-  if (user.role !== "admin") {
+  if (user.role.toLowerCase() !== "admin") {
     return res.status(403).json({ status: 403, message: "Unauthorized Admin" });
   }
   next();

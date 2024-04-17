@@ -12,7 +12,7 @@ import User from "./user"; // Assuming you have a User model
 @Table({
   tableName: "documents",
   modelName: "Document",
-  timestamps: true, // Specify the table name explicitly
+  timestamps: true,
 })
 class Document extends Model {
   @Column({

@@ -36,6 +36,7 @@ export class SignupComponent implements OnInit {
   ngOnInit(): void {
     if (this.storageService.isLoggedIn()) {
       this.isLoggedIn = true;
+      this.router.navigate(['dashboard']);
     }
   }
 

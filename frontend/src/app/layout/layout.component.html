@@ -10,25 +10,21 @@
   >
     <ul class="navbar-nav">
       <li class="nav-item">
-        <router-link class="nav-link" routerLink="/dashboard">Home</router-link>
+        <a class="nav-link" routerLink="/dashboard">Home</a>
       </li>
       <li class="nav-item">
-        <router-link class="nav-link" routerLink="/upload">Upload</router-link>
+        <a class="nav-link" routerLink="/upload">Upload</a>
       </li>
       <li class="nav-item">
-        <router-link class="nav-link" routerLink="/document"
-          >My Documents</router-link
-        >
+        <a class="nav-link" routerLink="/document">My Documents</a>
       </li>
       <li class="nav-item">
-        <router-link class="nav-link" routerLink="/verify"
-          >Verify Document</router-link
-        >
+        <a class="nav-link" routerLink="/verify">Verify Document</a>
       </li>
     </ul>
     <ul class="navbar-nav">
       <li class="nav-item">
-        <span class="navbar-text">Welcome, {{ userName }}</span>
+        <span class="navbar-text">Welcome, {{ userNames | async }}</span>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#" (click)="logOut()">Logout</a>
