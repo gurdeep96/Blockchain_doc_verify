@@ -6,6 +6,7 @@ import { create, IPFSHTTPClient } from "ipfs-http-client";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import * as fs from "fs";
 import * as fsPromise from "fs/promises";
+import nodemailer from "nodemailer";
 
 export function multerClient() {
   const paths = "../document/";
@@ -182,5 +183,64 @@ export function keyGen(key: string) {
         resolve(keys);
       }
     });
+  });
+}
+
+function mailer() {
+  let transporter: any;
+
+  function createTransporter() {
+    transporter = nodemailer.createTransport({
+      host: process.env.MAIL_SERVICE,
+      port: 587,
+      secure: false,
+      requireTLS: true,
+      auth: {
+        user: process.env.MAIL_ID,
+        pass: process.env.MAIL_PASS,
+      },
+    });
+  }
+
+  return {
+    getTransporter: function () {
+      if (!transporter) {
+        console.log("Creating new transporter...");
+        createTransporter();
+      }
+      return transporter;
+    },
+  };
+}
+
+function email() {
+  return mailer().getTransporter();
+}
+
+export function sendEmail(to: string, subject: string, text: any) {
+  return new Promise((resolve, reject) => {
+    var mailOptions = {
+      from: process.env.MAIL_ID,
+      to: to,
+      subject: subject,
+      html: text,
+    };
+
+    const mailer = email();
+    mailer.sendMail(mailOptions, function (error: any, info: any) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve("Email Sent Succesfully!");
+      }
+    });
+  });
+}
+
+export function randomGen() {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
   });
 }

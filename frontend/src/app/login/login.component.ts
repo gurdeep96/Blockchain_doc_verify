@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, OnInit } from '@angular/core';
 import { StorageService } from '../storage.service';
 import { AuthService } from '../auth.service';
@@ -17,16 +18,21 @@ import { LayoutComponent } from '../layout/layout.component';
 })
 export class LoginComponent implements OnInit {
   title = 'login';
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: any = {
     email: null,
     password: null,
   };
+  form2: any = {
+    forgetemail: null,
+  };
   username: string = '';
-  isLoggedIn = false;
-  isLoginFailed = false;
+  isLoggedIn: boolean = false;
+  isLoginFailed: boolean = false;
+  resetFailed: boolean = false;
   errorMessage = '';
+  errorMessage2 = '';
   roles: string[] = [];
+  forgetModal: boolean = false;
   private usernameSubject = new BehaviorSubject<string | null>(null);
   username$ = this.usernameSubject.asObservable();
   constructor(
@@ -46,10 +52,6 @@ export class LoginComponent implements OnInit {
 
   signUp(): void {
     this.router.navigate(['/signup']);
-  }
-
-  forgotPassword(): void {
-    this.router.navigate(['/forget']);
   }
 
   onSubmit(): void {
@@ -80,5 +82,28 @@ export class LoginComponent implements OnInit {
   }
   notLoggedIn() {
     this.isLoggedIn = false;
+  }
+
+  forgotPassword() {
+    this.forgetModal = true;
+  }
+
+  sendMail() {
+    const { forgetemail } = this.form2;
+    this.resetFailed = false;
+    this.authService.sendEmailPassword(forgetemail).subscribe({
+      next: (data) => {
+        alert(data.result);
+        this.forgetModal = false;
+        this.router.navigate([this.router.url]);
+      },
+      error: (error) => {
+        this.resetFailed = true;
+        if (error?.error?.status == 400) this.errorMessage2 = error.error.error;
+        else {
+          this.errorMessage2 = 'Something went Wrong , Mail cannot be sent now';
+        }
+      },
+    });
   }
 }

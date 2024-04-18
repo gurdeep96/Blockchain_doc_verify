@@ -64,6 +64,12 @@ class User extends Model {
     type: DataType.STRING,
     allowNull: true,
   })
+  token?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
   accountAddress?: string;
 
   @HasMany(() => Document)

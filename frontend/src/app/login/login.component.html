@@ -51,14 +51,8 @@
                 Login
               </button>
             </div>
-            <!-- <div class="form-group">
-              <button
-                class="btn btn-primary btn-block"
-                (click)="forgotPassword()"
-              >
-                Forgot Password
-              </button>
-            </div> -->
+            &nbsp;
+
             <br />
             <div class="form-group" *ngIf="f.submitted && isLoginFailed">
               <div class="alert alert-danger" role="alert">
@@ -71,6 +65,61 @@
               Sign up
             </button>
           </div>
+          <br />
+          <div style="text-align: center">
+            <button
+              class="btn btn-secondary btn-block"
+              (click)="forgotPassword()"
+            >
+              Forgot Password
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<br />
+<div class="container" *ngIf="forgetModal">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Enter Email id below to reset password:</h3>
+        </div>
+        <div class="card-body">
+          <form #f2="ngForm" novalidate>
+            <div class="form-group">
+              <label for="forgetemail">Email :</label>
+              <input
+                type="email"
+                class="form-control"
+                name="forgetemail"
+                [(ngModel)]="form2.forgetemail"
+                required
+                #forgetemail="ngModel"
+              />
+            </div>
+            <div
+              *ngIf="
+                forgetemail.invalid && (forgetemail.touched || f2.submitted)
+              "
+            >
+              <small class="text-danger">Email is required</small>
+            </div>
+            <br />
+            <div class="form-group">
+              <button class="btn btn-primary btn-block" (click)="sendMail()">
+                Reset
+              </button>
+            </div>
+            <br />
+            <div class="form-group" *ngIf="f2.submitted && resetFailed">
+              <div class="alert alert-danger" role="alert">
+                {{ errorMessage2 }}
+              </div>
+            </div>
+          </form>
         </div>
       </div>
     </div>

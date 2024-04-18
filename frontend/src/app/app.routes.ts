@@ -24,7 +24,7 @@ export const routes: Routes = [
     component: SignupComponent,
   },
   {
-    path: 'forget',
+    path: 'forget-password/:id/:token',
     component: ForgotPasswordComponent,
   },
   {

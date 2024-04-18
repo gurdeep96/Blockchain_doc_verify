@@ -50,11 +50,37 @@ export class UserRepository {
     });
   }
 
+  async updateToken(id: number, token: string) {
+    return await User.update(
+      {
+        token: token,
+      },
+      {
+        where: {
+          id: id,
+        },
+      }
+    );
+  }
+
   async updateUser(id: number, user: IUser) {
     return await User.update(
       {
         firstName: user.firstName,
         lastName: user.lastName,
+      },
+      {
+        where: {
+          id: id,
+        },
+      }
+    );
+  }
+
+  async updatePassword(id: number, pass: string) {
+    return await User.update(
+      {
+        password: pass,
       },
       {
         where: {

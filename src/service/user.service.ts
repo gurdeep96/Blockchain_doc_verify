@@ -6,6 +6,8 @@ import * as jwt from "jsonwebtoken";
 import {
   infuraIpfsCreate,
   infuraIpfsSave,
+  randomGen,
+  sendEmail,
   sha256hashAsync,
   thirdwebIpfsCreate,
   thirdwebIpfsDownload,
@@ -146,6 +148,74 @@ export class UserService {
 
   async deleteUser(id: number) {
     return await userRepo.deleteUser(id);
+  }
+
+  async sendForgetEmail(email: string) {
+    try {
+      if (!email) {
+        throw new createHttpError.BadRequest("No Email Provided!");
+      }
+      const user = await userRepo.findByEmail(email);
+
+      if (!user) {
+        throw new createHttpError.BadRequest(
+          "No User Found with the Email provided"
+        );
+      }
+      const token = randomGen();
+
+      const res = await userRepo.updateToken(user.id, token);
+      const sub = "DocVify | Reset Password";
+      const text = `<p>To reset your password click on the below link:</p>  <a href="${process.env.FRONTEND_URL}/forget-password/${user.id}/${token}">Click To Reset</a> <br> <p>Thanks DocVify team</p>`;
+      const response = await sendEmail(email, sub, text);
+
+      logger.info(`Forget Password email sent to : ${user?.email} `, {
+        class: UserService.name,
+        function: this.sendForgetEmail.name,
+      });
+      return response;
+    } catch (error) {
+      logger.error(`Error in Sending email ${error}`, {
+        class: UserService.name,
+        function: this.sendForgetEmail.name,
+      });
+      throw error;
+    }
+  }
+
+  async forgetPassword(id: number, password: string, token: string) {
+    try {
+      const user = await userRepo.findOne(id);
+      if (!user) {
+        throw new createHttpError.BadRequest("User Not Found!");
+      }
+      if (user.token !== token) {
+        throw new createHttpError.BadRequest(
+          "Something went wrong. Kindly go back and retry!"
+        );
+      }
+
+      const pass = await bcrypt.hash(password, 8);
+      const result = await userRepo.updatePassword(id, pass);
+
+      await userRepo.updateToken(id, "");
+
+      logger.info(
+        `Forget Password reset for user with email id : ${user?.email} done`,
+        {
+          class: UserService.name,
+          function: this.forgetPassword.name,
+        }
+      );
+      console.log(result);
+      return result;
+    } catch (error) {
+      logger.error(`Error in forget password function ${error}`, {
+        class: UserService.name,
+        function: this.forgetPassword.name,
+      });
+      throw error;
+    }
   }
 }
 const userService = new UserService();

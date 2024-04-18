@@ -3,7 +3,7 @@ import { StorageService } from '../storage.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../auth.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-forgot-password',
@@ -14,35 +14,49 @@ import { Router } from '@angular/router';
   styleUrl: './forgot-password.component.css',
 })
 export class ForgotPasswordComponent implements OnInit {
-  isLoggedIn: boolean = false;
-  responseMessage: string = '';
+  passwordFailed: boolean = false;
+  errorMessage: string = '';
+  successMessage: string = '';
+  token: string = '';
+  id: number = -1;
   form = {
-    email: '',
+    password: '',
+    rpassword: '',
   };
   constructor(
     private storageService: StorageService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
   ngOnInit(): void {
-    if (this.storageService.isLoggedIn()) {
-      this.isLoggedIn = true;
-    }
+    this.id = Number(this.route.snapshot.paramMap.get('id'));
+    this.token = this.route.snapshot.paramMap.get('token') as string;
+
+    console.log(this.id, this.token);
   }
 
   onSubmit() {
-    const { email } = this.form;
-    this.responseMessage = '';
-    this.authService.forgotPassword(email).subscribe((data) => {
-      if (data.status == 200) {
-        this.responseMessage = 'Check Your Email';
-        setTimeout(() => {
-          this.router.navigate(['/login']); // Redirect to success route after 2 seconds
-        }, 2000);
-      } else {
-        console.log('data', data);
-        this.responseMessage = data.result;
-      }
-    });
+    const { password, rpassword } = this.form;
+    this.passwordFailed = false;
+    if (password !== rpassword) {
+      this.passwordFailed = true;
+      this.errorMessage = 'Password dont match';
+    } else {
+      this.authService.forgotPassword(this.id, password, this.token).subscribe({
+        next: () => {
+          this.passwordFailed = false;
+          this.successMessage = 'Password Changed!';
+          setTimeout(() => {
+            this.router.navigate(['/login']); // Redirect to success route after 2 seconds
+          }, 2000);
+        },
+        error: (error) => {
+          console.log('reset error', error);
+          this.passwordFailed = true;
+          this.errorMessage = error.error.error;
+        },
+      });
+    }
   }
 }

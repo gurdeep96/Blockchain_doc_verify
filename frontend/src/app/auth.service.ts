@@ -40,8 +40,15 @@ export class AuthService {
     });
   }
 
-  forgotPassword(email: string): Observable<any> {
-    return this.http.post(AUTH_API + 'forgot-password', {
+  forgotPassword(id: number, password: string, token: string): Observable<any> {
+    return this.http.put(AUTH_API + `forget-password/${id}`, {
+      password: password,
+      token: token,
+    });
+  }
+
+  sendEmailPassword(email: string): Observable<any> {
+    return this.http.post(AUTH_API + `send-forget-mail`, {
       email: email,
     });
   }

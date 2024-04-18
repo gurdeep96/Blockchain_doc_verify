@@ -9,8 +9,10 @@ export class UserController {
       const { id } = req.params;
       const response = await userService.findOneUser(Number(id));
       res.status(200).send({ status: 200, result: response });
-    } catch (error) {
-      res.status(500).send({ error });
+    } catch (error: any) {
+      res
+        .status(error.status || 500)
+        .send({ status: error.status, error: error.message });
     }
   }
 
@@ -74,6 +76,36 @@ export class UserController {
       });
     } catch (error: any) {
       console.log(error);
+      res
+        .status(error.status || 500)
+        .send({ status: error.status, error: error.message });
+    }
+  }
+
+  async resetPassword(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const { password, token } = req.body;
+      const response = await userService.forgetPassword(
+        Number(id),
+        password,
+        token
+      );
+      res.status(200).send({ status: 200, result: response });
+    } catch (error: any) {
+      res
+        .status(error.status || 500)
+        .send({ status: error.status, error: error.message });
+    }
+  }
+
+  async sendForgetEmail(req: Request, res: Response) {
+    try {
+      const { email } = req.body;
+
+      const response = await userService.sendForgetEmail(email);
+      res.status(200).send({ status: 200, result: response });
+    } catch (error: any) {
       res
         .status(error.status || 500)
         .send({ status: error.status, error: error.message });
