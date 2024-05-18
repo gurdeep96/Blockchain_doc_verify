@@ -231,7 +231,7 @@ export function sendEmail(to: string, subject: string, text: any) {
       if (error) {
         reject(error);
       } else {
-        resolve("Email Sent Succesfully!");
+        resolve("Email Sent Successfully!");
       }
     });
   });

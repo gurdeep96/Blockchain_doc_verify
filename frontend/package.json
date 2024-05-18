@@ -24,6 +24,7 @@
     "@popperjs/core": "^2.11.8",
     "@walletconnect/web3-provider": "^1.8.0",
     "bootstrap": "^5.3.3",
+    "http-server": "^14.1.1",
     "jwt-decode": "^4.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",

@@ -32,10 +32,11 @@ export class UserRepository {
 
       // include: {
       //   model: Document,
-      //   attributes: [
-      //     [Sequelize.fn("COUNT", Sequelize.col("documents.id")), "docCount"],
-      //   ],
+      //   // attributes: [
+      //   //   [Sequelize.fn("COUNT", Sequelize.col("documents.id")), "docCount"],
+      //   // ],
       //   foreignKey: "userId",
+      //   right: true,
       // },
     });
   }

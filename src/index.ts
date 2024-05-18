@@ -7,6 +7,7 @@ import "reflect-metadata";
 
 dotenv.config();
 import db from "./db/models/index";
+import swaggerDocs from "./utils/swagger";
 
 const app: Express = express();
 const port = process.env.PORT;
@@ -22,11 +23,7 @@ function errorHandler(
 }
 
 const corsOptions = {
-  origin: [
-    "http://localhost:4200",
-    "http://127.0.0.1:8080",
-    "http://127.0.0.1:8000",
-  ],
+  origin: '*',
   credentials: true,
   maxAge: 86400,
 };
@@ -56,4 +53,5 @@ app.get("/", (req: Request, res: Response) => {
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
+  swaggerDocs(app, port);
 });
